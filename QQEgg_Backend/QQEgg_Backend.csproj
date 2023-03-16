@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\" />
     <Folder Include="Abstract\" />
     <Folder Include="Middleware\" />
   </ItemGroup>
