@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
 
 namespace QQEgg_Backend.Controllers
@@ -83,16 +85,21 @@ namespace QQEgg_Backend.Controllers
         // POST: api/TSuppliers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TSuppliers>> PostTSuppliers(TSuppliers tSuppliers)
+        public async Task<string> PostTSuppliers(SuppliersDTO tSuppliers)
         {
-          if (_context.TSuppliers == null)
-          {
-              return Problem("Entity set 'dbXContext.TSuppliers'  is null.");
-          }
-            _context.TSuppliers.Add(tSuppliers);
+            TSuppliers emp = new TSuppliers
+            {
+                Name=tSuppliers.Name,
+                Email=tSuppliers.Email,
+                Phone=tSuppliers.Phone,
+                Password=tSuppliers.Password,
+
+            };
+
+            _context.TSuppliers.Add(emp);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTSuppliers", new { id = tSuppliers.SupplierId }, tSuppliers);
+            return "註冊成功";
         }
 
         // DELETE: api/TSuppliers/5

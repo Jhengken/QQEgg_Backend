@@ -4,8 +4,8 @@ using QQEgg_Backend.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<dbXContext>(
  options => options.UseSqlServer(
  builder.Configuration.GetConnectionString("dbXConnection")
