@@ -27,16 +27,15 @@ namespace QQEgg_Backend.Models
             //裡面有順序跟加上HashKey、IV、UrlEndcode、雜湊
             Dictionary<string, string> dic = ChangeForDictionary(detail);
             dic["CheckMacValue"] = GetCheckMacValue(dic);
-            //串成form表單
-            StringBuilder s = new StringBuilder();
-            s.AppendFormat("<form id='payForm' action='{0}' method='post'>", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
+            StringBuilder strForm = new StringBuilder();
+            strForm.AppendFormat("<form id='payForm' action='{0}' method='post'>", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
             foreach (KeyValuePair<string, string> kvp in dic)
             {
-                s.AppendFormat($"<input type='hidden' name='{kvp.Key}' value='{kvp.Value}' />");
+                strForm.AppendFormat($"<input type='hidden' name='{kvp.Key}' value='{kvp.Value}' />");
             }
-            s.Append("</form>");
+            strForm.Append("</form>");
 
-            return s.ToString();
+            return strForm.ToString();
         }
 
         private Dictionary<string, string> ChangeForDictionary(ECPayDetail detail)
