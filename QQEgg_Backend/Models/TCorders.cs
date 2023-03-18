@@ -20,6 +20,7 @@ namespace QQEgg_Backend.Models
         public DateTime? CancelDate { get; set; }
         public DateTime? TakeDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public decimal? Price { get; set; }
 
         public virtual TCustomers Customer { get; set; }
         public virtual TProducts Product { get; set; }
