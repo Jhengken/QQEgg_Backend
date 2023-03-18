@@ -6,6 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+string MyAllowOrigins = "AllowAny";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("").WithHeaders("").WithMethods("*"));
+});
+
 builder.Services.AddDbContext<dbXContext>(
  options => options.UseSqlServer(
  builder.Configuration.GetConnectionString("dbXConnection")
