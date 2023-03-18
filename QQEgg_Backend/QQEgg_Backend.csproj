@@ -18,7 +18,17 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-    <PackageReference Include="ZXing.Net" Version="0.16.9" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstract\" />
+    <Folder Include="Middleware\" />
+    <PackageReference Include="ZXing.Net" Version="0.16.9" />
+    <Folder Include="Middleware\" />
+    <Folder Include="Middleware\" />
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
