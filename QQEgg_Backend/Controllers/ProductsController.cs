@@ -33,6 +33,7 @@ namespace QQEgg_Backend.Controllers
             var products = _context.TProducts
                 .Include(a => a.Supplier)
                 .Include(a => a.TPsite)
+                .ThenInclude(s => s.TPsiteRoom)
                 .Select(a => a);
 
 
@@ -90,6 +91,7 @@ namespace QQEgg_Backend.Controllers
                     Email = product.Supplier.Email,
                 },
                 Psite = psiteDTOs,
+                
             };
         }
         [HttpGet("{id}")]
@@ -99,6 +101,7 @@ namespace QQEgg_Backend.Controllers
             var result = _context.TProducts
                 .Include(a => a.Supplier)
                 .Include(a => a.TPsite)
+                .ThenInclude(s => s.TPsiteRoom)
                 .Where(a => a.ProductId == id)
                 .SingleOrDefault();
 
