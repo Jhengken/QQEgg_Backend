@@ -43,9 +43,7 @@ namespace QQEgg_Backend.Controllers
         private static ProductsDTO ToDTO(TProducts product)
         {
             List<PsiteDTO> psiteDTOs = new List<PsiteDTO>();
-            
-
-            
+                        
             foreach (var tmp in product.TPsite) 
             {
                 List<PsiteRoomDTO> psiteRoomDTOs = new List<PsiteRoomDTO>();
@@ -141,16 +139,11 @@ namespace QQEgg_Backend.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TProducts>> PostTProducts(TProducts tProducts)
+        public async Task<string> Post([FromBody]ProductsDTO pd)
         {
-            if (_context.TProducts == null)
-            {
-                return Problem("Entity set 'dbXContext.TProducts'  is null.");
-            }
-            _context.TProducts.Add(tProducts);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTProducts", new { id = tProducts.ProductId }, tProducts);
+
+            return "ok";
         }
 
         // DELETE: api/Products/5
