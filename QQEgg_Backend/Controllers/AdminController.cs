@@ -41,11 +41,10 @@ namespace QQEgg_Backend.Controllers
 
 
             }
-            else
-            {
+
                 //直接顯示登入畫面
                 return Unauthorized();
-            }
+            
 
         }
 
