@@ -11,7 +11,7 @@ namespace QQEgg_Backend.DTO
         public string? Latitude { get; set; }
         public string? Longitude { get; set; }
         public string? Address { get; set; }
-        public string? Description { get; set; }
+        public string? SiteDescription { get; set; }
     
         public virtual ICollection<PsiteRoomDTO> PsiteRoom { get; set; }
 

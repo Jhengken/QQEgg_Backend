@@ -59,7 +59,7 @@ namespace QQEgg_Backend.Controllers
                         Ping = room.Ping,
                         Image = room.Image,
                         Status = room.Status,
-                        Description = room.Description,
+                        RoomDescription = room.Description,
                     };
                     psiteRoomDTOs.Add(prto);
                 }
@@ -72,7 +72,7 @@ namespace QQEgg_Backend.Controllers
                     Latitude = tmp.Latitude,
                     Longitude = tmp.Longitude,
                     Address = tmp.Address,
-                    Description = tmp.Description,
+                    SiteDescription = tmp.Description,
                     PsiteRoom = psiteRoomDTOs,
                 };
                 psiteDTOs.Add(pdto);
