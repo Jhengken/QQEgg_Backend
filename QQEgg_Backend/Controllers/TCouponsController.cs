@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
 
 namespace QQEgg_Backend.Controllers
@@ -22,45 +23,59 @@ namespace QQEgg_Backend.Controllers
 
         // GET: api/TCoupons
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TCoupons>>> GetTCoupons()
+        public async Task<IEnumerable<CouponsDTO>> GetTCoupons()
         {
-          if (_context.TCoupons == null)
-          {
-              return NotFound();
-          }
-            return await _context.TCoupons.ToListAsync();
+          //if (_context.TCoupons == null)
+          //{
+          //    return NotFound();
+          //}
+            return _context.TCoupons.Select(cou=> new CouponsDTO {
+                CouponId= cou.CouponId,
+                Code= cou.Code,
+                Discount= cou.Discount,
+                ExpiryDate= cou.ExpiryDate,
+            });
         }
 
         // GET: api/TCoupons/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TCoupons>> GetTCoupons(int id)
+        public async Task<CouponsDTO> GetTCoupons(int id)
         {
-          if (_context.TCoupons == null)
-          {
-              return NotFound();
-          }
+          //if (_context.TCoupons == null)
+          //{
+          //    return NotFound();
+          //}
             var tCoupons = await _context.TCoupons.FindAsync(id);
 
             if (tCoupons == null)
             {
-                return NotFound();
+                return null;
             }
 
-            return tCoupons;
+            return new CouponsDTO { 
+                CouponId= tCoupons.CouponId,
+                Code= tCoupons.Code,
+                Discount= tCoupons.Discount,
+                ExpiryDate= tCoupons.ExpiryDate,
+            };
         }
 
         // PUT: api/TCoupons/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTCoupons(int id, TCoupons tCoupons)
+        [HttpPut("{id}")] //好像有錯??
+        public async Task<string> PutTCoupons(int id, CouponsDTO tCoupons)
         {
             if (id != tCoupons.CouponId)
             {
-                return BadRequest();
+                return "優惠券參數錯誤";
             }
 
-            _context.Entry(tCoupons).State = EntityState.Modified;
-
+            TCoupons? cou = await _context.TCoupons.FindAsync(tCoupons.CouponId);
+            cou.CouponId= tCoupons.CouponId;
+            cou.Code= tCoupons.Code;
+            cou.Discount= tCoupons.Discount;
+            cou.ExpiryDate = tCoupons.ExpiryDate;
+            _context.Entry(cou).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
@@ -69,7 +84,7 @@ namespace QQEgg_Backend.Controllers
             {
                 if (!TCouponsExists(id))
                 {
-                    return NotFound();
+                    return "優惠券不存在";
                 }
                 else
                 {
@@ -77,42 +92,50 @@ namespace QQEgg_Backend.Controllers
                 }
             }
 
-            return NoContent();
+            return "優惠券修改成功";
         }
 
         // POST: api/TCoupons
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TCoupons>> PostTCoupons(TCoupons tCoupons)
+        public async Task<string> PostTCoupons(CouponsDTO tCoupons)
         {
-          if (_context.TCoupons == null)
-          {
-              return Problem("Entity set 'dbXContext.TCoupons'  is null.");
-          }
-            _context.TCoupons.Add(tCoupons);
+            //if (_context.TCoupons == null)
+            //{
+            //    return Problem("Entity set 'dbXContext.TCoupons'  is null.");
+            //}
+
+            TCoupons cou = new TCoupons
+            {
+                //CouponId = tCoupons.CouponId, //Id是自動產生不能填
+                Code = tCoupons.Code,
+                Discount = tCoupons.Discount,
+                ExpiryDate = tCoupons.ExpiryDate,
+            };
+            _context.TCoupons.Add(cou);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTCoupons", new { id = tCoupons.CouponId }, tCoupons);
+            return "優惠券新增成功";
         }
 
         // DELETE: api/TCoupons/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTCoupons(int id)
+        public async Task<string> DeleteTCoupons(int id)
         {
-            if (_context.TCoupons == null)
-            {
-                return NotFound();
-            }
+            //if (_context.TCoupons == null)
+            //{
+            //    return NotFound();
+            //}
             var tCoupons = await _context.TCoupons.FindAsync(id);
             if (tCoupons == null)
             {
-                return NotFound();
+                return "優惠券刪除失敗";
             }
 
             _context.TCoupons.Remove(tCoupons);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return "優惠券刪除成功";
         }
 
         private bool TCouponsExists(int id)
