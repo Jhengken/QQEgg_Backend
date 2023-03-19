@@ -18,6 +18,7 @@ namespace QQEgg_Backend.Models
         public DateTime? ExpiryDate { get; set; }
         public int? Quantity { get; set; }
         public bool? Available { get; set; }
+        public int? HowPoint { get; set; }
 
         public virtual ICollection<TCorderDetail> TCorderDetail { get; set; }
     }

@@ -10,7 +10,7 @@ namespace QQEgg_Backend.Models
         public int OrderId { get; set; }
         public int RoomId { get; set; }
         public int? CouponId { get; set; }
-        public decimal? UnitPrice { get; set; }
+        public decimal? Price { get; set; }
 
         public virtual TCoupons Coupon { get; set; }
         public virtual TCorders Order { get; set; }

@@ -40,6 +40,7 @@ namespace QQEgg_Backend.Controllers
                 // 從資料庫中獲取該顧客的優惠卷資料
 
 
+                return Unauthorized();
             }
             else
             {

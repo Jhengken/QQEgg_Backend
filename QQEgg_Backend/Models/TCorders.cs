@@ -13,14 +13,14 @@ namespace QQEgg_Backend.Models
         }
 
         public int OrderId { get; set; }
+        public int? TradeNo { get; set; }
         public int? CustomerId { get; set; }
         public int? ProductId { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime? ReturnDate { get; set; }
         public DateTime? CancelDate { get; set; }
-        public DateTime? TakeDate { get; set; }
+        public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public decimal? Price { get; set; }
 
         public virtual TCustomers Customer { get; set; }
         public virtual TProducts Product { get; set; }

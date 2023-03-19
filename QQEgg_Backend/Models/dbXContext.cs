@@ -106,7 +106,7 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.CouponId).HasColumnName("CouponID");
 
-                entity.Property(e => e.UnitPrice).HasColumnType("money");
+                entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.HasOne(d => d.Coupon)
                     .WithMany(p => p.TCorderDetail)
@@ -132,6 +132,9 @@ namespace QQEgg_Backend.Models
 
                 entity.ToTable("tCOrders");
 
+                entity.HasIndex(e => e.TradeNo, "UQ_tCOrders_TradeNo")
+                    .IsUnique();
+
                 entity.Property(e => e.OrderId).HasColumnName("OrderID");
 
                 entity.Property(e => e.CancelDate).HasColumnType("datetime");
@@ -144,13 +147,11 @@ namespace QQEgg_Backend.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(sysdatetime())");
 
-                entity.Property(e => e.Price).HasColumnType("money");
-
                 entity.Property(e => e.ProductId).HasColumnName("ProductID");
 
                 entity.Property(e => e.ReturnDate).HasColumnType("datetime");
 
-                entity.Property(e => e.TakeDate).HasColumnType("datetime");
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.TCorders)
