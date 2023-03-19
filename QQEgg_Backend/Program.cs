@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 string MyAllowOrigins = "AllowAny";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("").WithHeaders("").WithMethods("*"));
+    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("*").WithHeaders("*").WithMethods("*"));
 });
 
 builder.Services.AddDbContext<dbXContext>(
@@ -36,3 +36,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+
