@@ -1,16 +1,26 @@
 ﻿
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QQEgg_Backend.Models;
+using System.Net.Mail;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using ZXing.QrCode;
+using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Drawing;
 
 namespace QQEgg_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class QrcodeController : ControllerBase
 
     {
@@ -68,7 +78,7 @@ namespace QQEgg_Backend.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("generate")]
-        public async Task<IActionResult> GenerateQRCode()
+        public async Task<IActionResult>  GenerateQRCode1()
         {
             var productCode = _dbXContext.TPsiteRoom.Select(a => a.RoomId).FirstOrDefault().ToString();
             var roomPassword = _dbXContext.TPsiteRoom.Select(a => a.Description).FirstOrDefault().ToString();
@@ -94,8 +104,77 @@ namespace QQEgg_Backend.Controllers
 
 
             Byte[] byteArray;
-            var width = 250; // width of the QR Code
-            var height = 250; // height of the QR Code
+            var width = 500; // width of the QR Code
+            var height = 500; // height of the QR Code
+            var margin = 0;
+            var qrCodeWriter = new ZXing.BarcodeWriterPixelData
+            {
+                Format = ZXing.BarcodeFormat.QR_CODE,
+                Options = new QrCodeEncodingOptions
+                {
+                    Height = height,
+                    Width = width,
+                    Margin = margin
+                }
+            };
+            var pixelData = qrCodeWriter.Write(qrText);
+            // 添加Logo到QR码
+          
+            // creating a PNG bitmap from the raw pixel data; if only black and white colors are used it makes no difference if the raw pixel data is BGRA oriented and the bitmap is initialized with RGB
+            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+            {
+                using (var ms = new MemoryStream())
+                {
+                    var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    try
+                    {
+                        // we assume that the row stride of the bitmap is aligned to 4 byte multiplied by the width of the image
+                        System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                    }
+                    finally
+                    {
+                        bitmap.UnlockBits(bitmapData);
+                    }
+                    // 添加Logo到QR码
+                    //var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\後端C#\QQEgg_Backend\images\poop (1).png"); // 读取 logo 图片
+                    //var g = Graphics.FromImage(bitmap);
+                    //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    //g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
+                    // save to folder
+                    //string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
+                    //bitmap.Save(Server.MapPath("~/qrr") + "/file-" + fileGuid + ".png", System.Drawing.Imaging.ImageFormat.Png);
+                    // save to stream as PNG
+                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                    return File(ms.ToArray(), "image/png");
+
+                }
+
+            }
+
+        }
+        private byte[] GenerateQRCode()
+        {
+            var productCode = _dbXContext.TPsiteRoom.Select(a => a.RoomId).FirstOrDefault().ToString();
+            var roomPassword = _dbXContext.TPsiteRoom.Select(a => a.Description).FirstOrDefault().ToString();
+            var aesKey = new byte[32]; // 產生 256 bits 的 key
+            var aesIv = new byte[16]; // 產生 128 bits 的 IV
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(aesKey);
+                rng.GetBytes(aesIv);
+            }
+            var encryptedProductCode = Encrypt(productCode, aesKey, aesIv);
+            var encryptedRoomPassword = Encrypt(roomPassword, aesKey, aesIv);
+            Console.WriteLine($"{encryptedProductCode},{encryptedRoomPassword}");
+            var expirationDate = DateTime.Now.AddDays(1);
+            var expirationDateStr = expirationDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+            // 將加密後的產品代號和房間密碼加入 QR Code 中
+            var qrText = $"{encryptedProductCode};{encryptedRoomPassword};{expirationDateStr}"; // 添加失效日期到QR码文本中
+            Console.WriteLine(qrText);
+
+            var width = 500; // width of the QR Code
+            var height = 500; // height of the QR Code
             var margin = 0;
             var qrCodeWriter = new ZXing.BarcodeWriterPixelData
             {
@@ -123,17 +202,19 @@ namespace QQEgg_Backend.Controllers
                     {
                         bitmap.UnlockBits(bitmapData);
                     }
+                    //var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\後端C#\QQEgg_Backend\images\poop (1).png"); // 读取 logo 图片
+                    //var g = Graphics.FromImage(bitmap);
+                    //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    //g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
+
                     // save to folder
                     //string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
                     //bitmap.Save(Server.MapPath("~/qrr") + "/file-" + fileGuid + ".png", System.Drawing.Imaging.ImageFormat.Png);
                     // save to stream as PNG
                     bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    return File(ms.ToArray(), "image/png");
-
+                    return ms.ToArray();
                 }
-
             }
-
         }
         /// <summary>
         /// 比對顧客拿到的qrcode去跟訂房時間最比較，超過時間則不得進入
@@ -141,26 +222,26 @@ namespace QQEgg_Backend.Controllers
         /// <param name="qrCode"></param>
         /// <returns></returns>
         [HttpPost("check-expiration")]
-        public IActionResult CheckExpiration([FromBody]string qrCode)
+        public IActionResult CheckExpiration([FromBody] string qrCode)
         {
             // 解密QR码中的文本，提取失效日期
-                 var fields = qrCode.Split(';');
-               
-                var expirationDateStr = fields.ElementAtOrDefault(2);
-                if (DateTime.TryParse(expirationDateStr, out DateTime expirationDate))
+            var fields = qrCode.Split(';');
+
+            var expirationDateStr = fields.ElementAtOrDefault(2);
+            if (DateTime.TryParse(expirationDateStr, out DateTime expirationDate))
+            {
+                // 比较当前日期与失效日期
+                if (expirationDate < DateTime.Now)
                 {
-                    // 比较当前日期与失效日期
-                    if (expirationDate < DateTime.Now)
-                    {
-                        // 过期
-                        return BadRequest("QR code has expired.");
-                    }
-                    else
-                    {
-                        // 未过期，可以进入房间
-                        return Ok();
-                    }
+                    // 过期
+                    return BadRequest("QR code has expired.");
                 }
+                else
+                {
+                    // 未过期，可以进入房间
+                    return Ok();
+                }
+            }
 
 
             // 如果解密或解析失败，则认为QR码过期
@@ -256,7 +337,7 @@ namespace QQEgg_Backend.Controllers
         {
             //驗證key和iv都必須為128bits或192bits或256bits
             List<int> LegalSizes = new List<int>() { 128, 192, 256 };
-            int keyBitSize = key.Length * 8; 
+            int keyBitSize = key.Length * 8;
             int ivBitSize = iv.Length * 8;
             if (!LegalSizes.Contains(keyBitSize) || !LegalSizes.Contains(ivBitSize))
             {
@@ -273,7 +354,7 @@ namespace QQEgg_Backend.Controllers
         /// <param name="iv"></param>
         /// <param name="plain_text"></param>
         /// <returns></returns>
-        public static string Encrypt(string plain_text,byte[] key, byte[] iv)
+        public static string Encrypt(string plain_text, byte[] key, byte[] iv)
         {
             Validate_KeyIV_Length(key, iv);
             using Aes aes = Aes.Create();
@@ -293,7 +374,7 @@ namespace QQEgg_Backend.Controllers
         /// <param name="iv"></param>
         /// <param name="base64String"></param>
         /// <returns></returns>
-        public static string Decrypt(string base64String,byte[] key, byte[] iv )
+        public static string Decrypt(string base64String, byte[] key, byte[] iv)
         {
             Validate_KeyIV_Length(key, iv);
 
@@ -360,6 +441,105 @@ namespace QQEgg_Backend.Controllers
             return Regex.IsMatch(s, regex);
         }
 
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> SendEmail(int userid)
+        //{
+        //    var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        //    var jwtHandler = new JwtSecurityTokenHandler();
+        //    var jwtToken = jwtHandler.ReadJwtToken(token);
+
+        //    var subClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        //    int userId = int.Parse(subClaim.Value);
+        //    // 從資料庫讀取使用者的電子郵件地址
+        //    var user = await _dbXContext.TCustomers.FindAsync(userId);
+        //    string receiveMail = user.Email;
+        //    string subject = "想享訂房資訊";
+        //    // 呼叫 GenerateQRCode 方法來取得 QR Code 的圖片資料
+        //    byte[] qrCodeData = GenerateQRCode();
+
+        //    // 將 QR Code 的圖片資料轉換成 Base64 字串，以便在 HTML 內容中嵌入圖片
+        //    string qrCodeBase64 = Convert.ToBase64String(qrCodeData);
+        //    string qrCodeHtml = $"<img src=\"data:image/png;base64,{qrCodeBase64}\" alt=\"QR Code\">";
+        //    string body = string.Format($"親愛的 {user.Name}，<br><br>您好！這是你租房間的qrcode，拿著qrcode到門口掃描就可以進出了!<br><br>感謝!!!");
+        //    // 建立 MailMessage 物件並設定內容
+        //    MailMessage message = new MailMessage();
+        //    message.From = new MailAddress("sam831020ya@gmail.com");
+        //    message.To.Add(new MailAddress(receiveMail));
+        //    message.Subject = subject;
+        //    message.Body = body;
+        //    message.IsBodyHtml = true;
+        //    // 添加 QR Code 圖檔作為附件
+        //    using (MemoryStream stream = new MemoryStream(qrCodeData))
+        //    {
+        //        Attachment attachment = new Attachment(stream, "qrcode.png", "image/png");
+        //        message.Attachments.Add(attachment);
+
+        //        // 建立 SmtpClient 物件並發送郵件
+        //        using (SmtpClient client = new SmtpClient())
+        //        {
+        //            client.Host = "smtp.gmail.com";
+        //            client.Port = 587;
+        //            client.UseDefaultCredentials = false;
+        //            client.Credentials = new NetworkCredential("sam831020ya@gmail.com", "nwvuoijokntfhtcb");
+        //            client.EnableSsl = true;
+
+        //            await client.SendMailAsync(message);
+        //        }
+        //    }
+        //    return Ok();
+        //}
+        [HttpPost]
+        public async Task<IActionResult> SendEmail(int userId)
+        {
+            var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var jwtToken = jwtHandler.ReadJwtToken(token);
+
+            var subClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+             userId = int.Parse(subClaim.Value);
+            // 從資料庫讀取使用者的電子郵件地址
+            var user = await _dbXContext.TCustomers.FindAsync(userId);
+            string receiveMail = user.Email;
+            string subject = "想享訂房資訊";
+            // 呼叫 GenerateQRCode 方法來取得 QR Code 的圖片資料
+            byte[] qrCodeData = GenerateQRCode();
+
+            // 將 QR Code 的圖片資料轉換成 Base64 字串，以便在 HTML 內容中嵌入圖片
+            string qrCodeBase64 = Convert.ToBase64String(qrCodeData);
+            string qrCodeHtml = $"<img src=\"data:image/png;base64,{qrCodeBase64}\" alt=\"QR Code\">";
+            string body = $"親愛的 {user.Name}，<br><br>您好！這是你租房間的qrcode，拿著qrcode到門口掃描就可以進出了!<br><br>感謝!!!";
+
+            // 建立 MailMessage 物件並設定內容
+            MailMessage message = new MailMessage();
+            message.From = new MailAddress("sam831020ya@gmail.com");
+            message.To.Add(new MailAddress(receiveMail));
+            message.Subject = subject;
+            message.Body = body;
+            message.IsBodyHtml = true;
+
+            // 建立 Attachment 物件並設定內容
+            MemoryStream qrCodeStream = new MemoryStream(qrCodeData);
+            Attachment qrCodeAttachment = new Attachment(qrCodeStream, "qrcode.png", "image/png");
+            message.Attachments.Add(qrCodeAttachment);
+
+            // 建立 SmtpClient 物件並發送郵件
+            using (SmtpClient client = new SmtpClient())
+            {
+                client.Host = "smtp.gmail.com";
+                client.Port = 587;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential("sam831020ya@gmail.com", "nwvuoijokntfhtcb");
+                client.EnableSsl = true;
+                await client.SendMailAsync(message);
+            }
+
+            // 釋放資源並回傳訊息
+            qrCodeStream.Dispose();
+            qrCodeAttachment.Dispose();
+            return Ok();
+        }
     }
 }
 

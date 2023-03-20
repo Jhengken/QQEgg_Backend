@@ -153,6 +153,8 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
 
+                entity.Property(e => e.TradeNo).HasMaxLength(20);
+
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.TCorders)
                     .HasForeignKey(d => d.CustomerId)

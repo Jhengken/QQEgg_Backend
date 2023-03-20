@@ -20,6 +20,7 @@ namespace QQEgg_Backend.Controllers
         {
             ECPayResult result = new ECPayService().GetCallbackResult(Request.Form);
             //return result.ReceiveObj!;     //要看綠界回傳打開這行
+
             return result.ResponseECPay!;
         }
     }

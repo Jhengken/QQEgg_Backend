@@ -9,12 +9,16 @@ namespace QQEgg_Backend.Abstract
     public abstract class CustomerAbstractDTOValidation : IValidatableObject
     {
         public string Name { get; set; }
+        [JsonIgnore]
         public bool? Sex { get; set; }
         public string Email { get; set; }
+
         public string Phone { get; set; }
         public string Password { get; set; }
+        [JsonIgnore]
         public DateTime? Birth { get; set; }
-        public string CreditCard { get; set; }
+        [JsonIgnore]
+        public string? CreditCard { get; set; }
 
         //該[JsonIgnore] 屬性可防止PasswordHash屬性在 api 響應中被序列化和返回
         [JsonIgnore]

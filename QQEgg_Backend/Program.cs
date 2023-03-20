@@ -18,6 +18,7 @@ builder.Services.AddDbContext<dbXContext>(
  options => options.UseSqlServer(
  builder.Configuration.GetConnectionString("dbXConnection")
 ));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
@@ -45,20 +46,19 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors(MyAllowOrigins);
 app.UseHttpsRedirection();
-//app.UseStaticFiles();
-//app.UseRouting();
+app.UseStaticFiles();
+app.UseRouting();
 
 //app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 // 加入 TokenMiddleware 中介軟體
-//app.UseMiddleware<TokenMiddleware>();
-//app.UseEndpoints(endpoints =>
-//{
-//    endpoints.MapControllers();
-//});
+app.UseMiddleware<TokenMiddleware>();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 app.MapControllers();
 
 app.Run();
