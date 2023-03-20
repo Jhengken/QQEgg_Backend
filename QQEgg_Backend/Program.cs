@@ -6,12 +6,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the DI container.
+string dbXConnectionString = builder.Configuration.GetConnectionString("dbXConnection");
+builder.Services.AddDbContext<dbXContext>(options => { 
+    options.UseSqlServer(connectionString: dbXConnectionString);
+});
 
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<dbXContext>(
- options => options.UseSqlServer(
- builder.Configuration.GetConnectionString("dbXConnection")
+options => options.UseSqlServer(
+builder.Configuration.GetConnectionString("dbXConnection")
 ));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
