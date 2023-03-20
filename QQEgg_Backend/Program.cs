@@ -45,12 +45,13 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors(MyAllowOrigins);
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
+//app.UseStaticFiles();
+//app.UseRouting();
 
 //app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 // 加入 TokenMiddleware 中介軟體
 //app.UseMiddleware<TokenMiddleware>();
