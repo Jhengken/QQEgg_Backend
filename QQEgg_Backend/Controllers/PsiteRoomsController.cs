@@ -55,7 +55,7 @@ namespace QQEgg_Backend.Controllers
                 Ping = room.Ping,
                 Image = room.Image,
                 Status = room.Status,
-                Description = room.Description,
+                RoomDescription = room.Description,
             };
         }
         // PUT: api/PsiteRooms/5
