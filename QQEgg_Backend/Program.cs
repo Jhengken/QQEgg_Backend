@@ -6,17 +6,17 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the DI container.
-string dbXConnectionString = builder.Configuration.GetConnectionString("dbXConnection");
-builder.Services.AddDbContext<dbXContext>(options => { 
-    options.UseSqlServer(connectionString: dbXConnectionString);
+// Add services to the container.
+string MyAllowOrigins = "AllowAny";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("*").WithHeaders("*").WithMethods("*"));
 });
 
 builder.Services.AddControllers();
-
 builder.Services.AddDbContext<dbXContext>(
-options => options.UseSqlServer(
-builder.Configuration.GetConnectionString("dbXConnection")
+ options => options.UseSqlServer(
+ builder.Configuration.GetConnectionString("dbXConnection")
 ));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -43,7 +43,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(MyAllowOrigins);
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
