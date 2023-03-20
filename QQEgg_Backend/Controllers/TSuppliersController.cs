@@ -12,6 +12,7 @@ using QQEgg_Backend.Models;
 
 namespace QQEgg_Backend.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class TSuppliersController : ControllerBase
