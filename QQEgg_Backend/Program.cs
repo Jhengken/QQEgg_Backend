@@ -4,6 +4,11 @@ using QQEgg_Backend.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+string MyAllowOrigins = "AllowAny";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("*").WithHeaders("*").WithMethods("*"));
+});
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<dbXContext>(
@@ -22,7 +27,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(MyAllowOrigins);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

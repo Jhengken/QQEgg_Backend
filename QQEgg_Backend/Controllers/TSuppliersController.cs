@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
 
 namespace QQEgg_Backend.Controllers
@@ -22,45 +25,54 @@ namespace QQEgg_Backend.Controllers
 
         // GET: api/TSuppliers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TSuppliers>>> GetTSuppliers()
+        public async Task<IEnumerable<SuppliersDTO>> GetTSuppliers()
         {
-          if (_context.TSuppliers == null)
-          {
-              return NotFound();
-          }
-            return await _context.TSuppliers.ToListAsync();
+            return _context.TSuppliers.Select(sup => new SuppliersDTO
+            {
+                SupplierId = sup.SupplierId,
+                Name = sup.Name,
+                Email = sup.Email,
+                Phone = sup.Phone,
+                Password = sup.Password,
+            });
         }
 
         // GET: api/TSuppliers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TSuppliers>> GetTSuppliers(int id)
+        public async Task<SuppliersDTO> GetTSuppliers(int id)
         {
-          if (_context.TSuppliers == null)
-          {
-              return NotFound();
-          }
             var tSuppliers = await _context.TSuppliers.FindAsync(id);
 
             if (tSuppliers == null)
             {
-                return NotFound();
+                return null;
             }
 
-            return tSuppliers;
+            return new SuppliersDTO
+            {
+                SupplierId = tSuppliers.SupplierId,
+                Name = tSuppliers.Name,
+                Email = tSuppliers.Email,
+                Phone = tSuppliers.Phone,
+                Password = tSuppliers.Password,
+            };
         }
 
         // PUT: api/TSuppliers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTSuppliers(int id, TSuppliers tSuppliers)
+        public async Task<string> PutTSuppliers(int id, SuppliersDTO tSuppliers)
         {
             if (id != tSuppliers.SupplierId)
             {
-                return BadRequest();
+                return "參數錯誤";
             }
-
-            _context.Entry(tSuppliers).State = EntityState.Modified;
-
+            TSuppliers? sup = await _context.TSuppliers.FindAsync(tSuppliers.SupplierId);
+            _context.Entry(sup).State = EntityState.Modified;
+            sup.Name = tSuppliers.Name;
+            sup.Phone = tSuppliers.Phone;
+            sup.Email = tSuppliers.Email;
+            sup.Password = tSuppliers.Password;
             try
             {
                 await _context.SaveChangesAsync();
@@ -69,7 +81,7 @@ namespace QQEgg_Backend.Controllers
             {
                 if (!TSuppliersExists(id))
                 {
-                    return NotFound();
+                    return "記錄錯誤";
                 }
                 else
                 {
@@ -77,42 +89,43 @@ namespace QQEgg_Backend.Controllers
                 }
             }
 
-            return NoContent();
+            return "修改成功";
         }
 
         // POST: api/TSuppliers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<TSuppliers>> PostTSuppliers(TSuppliers tSuppliers)
+        public async Task<string> PostTSuppliers(SuppliersDTO tSuppliers)
         {
-          if (_context.TSuppliers == null)
-          {
-              return Problem("Entity set 'dbXContext.TSuppliers'  is null.");
-          }
-            _context.TSuppliers.Add(tSuppliers);
+            TSuppliers sup = new TSuppliers
+            {
+                Name = tSuppliers.Name,
+                Email = tSuppliers.Email,
+                Phone = tSuppliers.Phone,
+                Password = tSuppliers.Password,
+
+            };
+
+            _context.TSuppliers.Add(sup);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTSuppliers", new { id = tSuppliers.SupplierId }, tSuppliers);
+            return "註冊成功";
         }
 
         // DELETE: api/TSuppliers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTSuppliers(int id)
+        public async Task<string> DeleteTSuppliers(int id)
         {
-            if (_context.TSuppliers == null)
-            {
-                return NotFound();
-            }
             var tSuppliers = await _context.TSuppliers.FindAsync(id);
             if (tSuppliers == null)
             {
-                return NotFound();
+                return "刪除失敗";
             }
 
             _context.TSuppliers.Remove(tSuppliers);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return "刪除成功";
         }
 
         private bool TSuppliersExists(int id)

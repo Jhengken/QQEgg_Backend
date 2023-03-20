@@ -1,6 +1,6 @@
 ﻿namespace QQEgg_Backend.DTO
 {
-    public class SupplierDTO
+    public class SuppliersDTO
     {
         public int SupplierId { get; set; }
         public string? Name { get; set; }
