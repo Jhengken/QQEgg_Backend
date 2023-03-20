@@ -284,11 +284,11 @@ namespace QQEgg_Backend.Controllers
 
         private static Dictionary<string, List<string>> _userCouponClaims = new Dictionary<string, List<string>>();
 
-        [HttpGet("claimCoupon")]
+        [HttpGet("claimCoupon/{id}")]
         [Authorize] 
-        public IActionResult ClaimCoupon([FromBody]string code)
+        public IActionResult ClaimCoupon(int id)
         {
-           
+            string code = id.ToString();
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null)
