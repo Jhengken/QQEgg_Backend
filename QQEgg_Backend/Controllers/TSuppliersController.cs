@@ -153,9 +153,9 @@ namespace QQEgg_Backend.Controllers
         {
             if (tSuppliers.Email != null && tSuppliers.Password != null)
             {
-                var user = _context.TSuppliers.FirstOrDefault(u => u.Email == tSuppliers.Email);
-                var userId = _context.TSuppliers.Where(a => a.SupplierId == 1003).Select(a => a.SupplierId).FirstOrDefault();
-                if (user == null || !BCrypt.Net.BCryptHlper.Verify(tSuppliers.Password, user.Password))
+                var SUser = _context.TSuppliers.FirstOrDefault(u => u.Email == tSuppliers.Email);
+                var SUserId = _context.TSuppliers.Where(a => a.SupplierId == 1003).Select(a => a.SupplierId).FirstOrDefault();
+                if (SUser == null || !BCrypt.Net.BCryptHlper.Verify(tSuppliers.Password, SUser.Password))
                 {
                     return BadRequest("帳密錯誤");
                 }
@@ -163,10 +163,10 @@ namespace QQEgg_Backend.Controllers
                 {
                     var claims = new List<Claim>
                             {
-                                 new Claim(JwtRegisteredClaimNames.Sub, user.SupplierId.ToString()), // 添加用户 ID 作为 subject
+                                 new Claim(JwtRegisteredClaimNames.Sub, SUser.SupplierId.ToString()), // 添加用户 ID 作为 subject
                                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                                  new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                                 new Claim("Name",user.Name),
+                                 new Claim("Name",SUser.Name),
                                  new Claim(JwtRegisteredClaimNames.Email, tSuppliers.Email)
 
                         };
