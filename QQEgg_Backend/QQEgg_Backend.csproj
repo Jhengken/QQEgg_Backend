@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Abstract\" />
     <Folder Include="Middleware\" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
     <Folder Include="Middleware\" />
