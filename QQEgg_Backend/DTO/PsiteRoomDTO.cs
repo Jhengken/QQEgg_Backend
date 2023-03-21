@@ -5,6 +5,7 @@ namespace QQEgg_Backend.DTO
     public class PsiteRoomDTO
     {
         public int RoomId { get; set; }        
+        public int? SiteId { get; set; }
         public int? CategoryId { get; set; }
         public decimal? HourPrice { get; set; }
         public decimal? DatePrice { get; set; }
@@ -12,6 +13,7 @@ namespace QQEgg_Backend.DTO
         public string? Image { get; set; }
         public bool? Status { get; set; }
         public string? RoomDescription { get; set; }        
+        public string? RoomPassWord { get; set; }
         
     }
 }

@@ -37,7 +37,6 @@ namespace QQEgg_Backend.Controllers
                     CustomerName = o.Customer.Name,
                     ProductName = o.Product.Name,
                     OrderDate = o.OrderDate,
-                    ReturnDate = o.ReturnDate,
                     CancelDate = o.CancelDate,
                     StartDate = o.StartDate,
                     EndDate = o.EndDate,
@@ -74,7 +73,6 @@ namespace QQEgg_Backend.Controllers
                     CustomerName = o.Customer.Name,
                     ProductName=o.Product.Name,
                     OrderDate=o.OrderDate,
-                    ReturnDate=o.ReturnDate,
                     CancelDate=o.CancelDate,
                     StartDate=o.StartDate,
                     EndDate=o.EndDate,
@@ -98,7 +96,6 @@ namespace QQEgg_Backend.Controllers
                 TradeNo = dto.TradeNo,
                 ProductId = dto.ProductId,
                 CustomerId = dto.CustomerId,
-                ReturnDate = dto.ReturnDate,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
             };
