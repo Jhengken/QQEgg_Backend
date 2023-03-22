@@ -54,7 +54,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // 加入 TokenMiddleware 中介軟體
-app.UseMiddleware<TokenMiddleware>();
+//app.UseMiddleware<TokenMiddleware>();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
