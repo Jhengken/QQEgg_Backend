@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTO\SuppliersDTO - 複製.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EfCore.SchemaCompare" Version="6.0.0" />
     <PackageReference Include="github.hyfree.Bcrypt.NetCore" Version="1.0.1" />
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
