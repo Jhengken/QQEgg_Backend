@@ -13,7 +13,7 @@ namespace QQEgg_Backend.DTO
         public string? Longitude { get; set; }
         public string? Address { get; set; }
         public string? SiteDescription { get; set; }
-
+        public IFormFile? SitePhoto { get; set; }
         public virtual ICollection<PsiteRoomDTO>? PsiteRoom { get; set; }
         
        

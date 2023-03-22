@@ -20,10 +20,12 @@ namespace QQEgg_Backend.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly dbXContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public ProductsController(dbXContext context)
+        public ProductsController(dbXContext context,IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: api/Products
@@ -156,26 +158,36 @@ namespace QQEgg_Backend.Controllers
         }
 
         [HttpPost("PSite")]
-        public async Task<string> PSitePost([FromBody] PsiteDTO pd)
+        public async Task<string> PSitePost([FromForm] PsiteDTO pd)
         {
             TPsite psite = new TPsite()
             {
                 ProductId = pd.ProductId,
-                Name=pd.Name,
-                Image=pd.Image,
-                OpenTime=pd.OpenTime,
-                Latitude=pd.Latitude,
-                Longitude=pd.Longitude,
-                Address=pd.Address,
-                Description=pd.SiteDescription
+                Name = pd.Name,
+                OpenTime = pd.OpenTime,
+                Latitude = pd.Latitude,
+                Longitude = pd.Longitude,
+                Address = pd.Address,
+                Description = pd.SiteDescription
             };
+            if (pd.SitePhoto != null)
+            {
+                //這個前端專案資料夾要放在後端專案資料夾的隔壁
+                string path = _env.ContentRootPath + @"..\..\QQEgg_Frontend\src\assets\img\PSite\";
+                string name = DateTime.Now.ToString("yyyyMMddHHmmssfff") + pd.SitePhoto.Name+".jpg";
+                using (System.IO.FileStream stream = System.IO.File.Create(path+name))
+                {
+                    pd.SitePhoto.CopyTo(stream);
+                }
+                psite.Image = name;
+            }
             _context.TPsite.Add(psite);
             await _context.SaveChangesAsync();
             return "新增 Site 成功";
         }
 
         [HttpPost("PSiteRoom")]
-        public async Task<string> PSiteRoomPost([FromBody] PsiteRoomDTO pd)
+        public async Task<string> PSiteRoomPost([FromForm] PsiteRoomDTO pd)
         {
             TPsiteRoom psiteRoom = new TPsiteRoom()
             {
@@ -188,6 +200,17 @@ namespace QQEgg_Backend.Controllers
                 Status = pd.Status,
                 Description = pd.RoomDescription
             };
+            if (pd.RoomPhoto != null)
+            {
+                //這個前端專案資料夾要放在後端專案資料夾的隔壁
+                string path = _env.ContentRootPath + @"..\..\QQEgg_Frontend\src\assets\img\PSiteRoom\";
+                string name = DateTime.Now.ToString("yyyyMMddHHmmssfff") + pd.RoomPhoto.Name + ".jpg";
+                using (System.IO.FileStream stream = System.IO.File.Create(path + name))
+                {
+                    pd.RoomPhoto.CopyTo(stream);
+                }
+                psiteRoom.Image = name;
+            }
             _context.TPsiteRoom.Add(psiteRoom);
             await _context.SaveChangesAsync();
             return "新增 PSiteRoom 成功";

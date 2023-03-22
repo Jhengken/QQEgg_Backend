@@ -21,6 +21,7 @@ namespace QQEgg_Backend.Models
             detail.MerchantTradeDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
             detail.ReturnURL = $"{config["HostURL"]}/api/ECPay/ECPayReturn";
             //付款完成後導入的網址
+            detail.OrderResultURL = $"https://www.google.com.tw/";  //要看綠界回傳打開這行
             //detail.OrderResultURL = $"{config["HostURL"]}/api/ECPay/ECPayReturn";  //要看綠界回傳打開這行
 
             //CheckMacValue檢查碼
