@@ -97,7 +97,6 @@ namespace QQEgg_Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductsDTO>> GetTProducts(int id)
         {
-           
             var result = _context.TProducts
                 .Include(a => a.Supplier)
                 .Include(a => a.TPsite)
@@ -105,6 +104,8 @@ namespace QQEgg_Backend.Controllers
                 .Where(a => a.ProductId == id)
                 .SingleOrDefault();
 
+            if(result == null)
+                return null!;
             return ToDTO(result);
         }
 
@@ -144,31 +145,102 @@ namespace QQEgg_Backend.Controllers
         [HttpPost]
         public async Task<string> Post([FromBody]ProductsDTO pd)
         {
+            TProducts product = new TProducts()
+            {
+                SupplierId=pd.SupplierId,
+                Name = pd.Name,
+            };
+            _context.TProducts.Add(product);
+            await _context.SaveChangesAsync();
+            return "新增 Product 成功";
+        }
 
+        [HttpPost("PSite")]
+        public async Task<string> PSitePost([FromBody] PsiteDTO pd)
+        {
+            TPsite psite = new TPsite()
+            {
+                ProductId = pd.ProductId,
+                Name=pd.Name,
+                Image=pd.Image,
+                OpenTime=pd.OpenTime,
+                Latitude=pd.Latitude,
+                Longitude=pd.Longitude,
+                Address=pd.Address,
+                Description=pd.SiteDescription
+            };
+            _context.TPsite.Add(psite);
+            await _context.SaveChangesAsync();
+            return "新增 Site 成功";
+        }
 
-            return "ok";
+        [HttpPost("PSiteRoom")]
+        public async Task<string> PSiteRoomPost([FromBody] PsiteRoomDTO pd)
+        {
+            TPsiteRoom psiteRoom = new TPsiteRoom()
+            {
+                SiteId = pd.SiteId,
+                CategoryId = pd.CategoryId,
+                HourPrice = pd.HourPrice,
+                DatePrice = pd.DatePrice,
+                Ping = pd.Ping,
+                Image = pd.Image,
+                Status = pd.Status,
+                Description = pd.RoomDescription
+            };
+            _context.TPsiteRoom.Add(psiteRoom);
+            await _context.SaveChangesAsync();
+            return "新增 PSiteRoom 成功";
         }
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTProducts(int id)
+        public async Task<string> DeleteTProducts(int id)
         {
             if (_context.TProducts == null)
             {
-                return NotFound();
+                return "查無資料";
             }
             var tProducts = await _context.TProducts.FindAsync(id);
             if (tProducts == null)
             {
-                return NotFound();
+                return "查無資料";
             }
 
             _context.TProducts.Remove(tProducts);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return "刪除 Product 成功";
+
         }
 
+        [HttpDelete("PSite/{id}")]
+        public async Task<string> DeleteTPSite(int id)
+        {
+            var psite = await _context.TPsite.FindAsync(id);
+            if (psite == null)
+            {
+                return "查無資料";
+            }
+
+            _context.TPsite.Remove(psite);
+            await _context.SaveChangesAsync();
+            return "刪除 PSite 成功";
+        }
+
+        [HttpDelete("PSiteRoom/{id}")]
+        public async Task<string> DeleteTPSiteRoom(int id)
+        {
+            var psiteroom = await _context.TPsiteRoom.FindAsync(id);
+            if (psiteroom == null)
+            {
+                return "查無資料";
+            }
+
+            _context.TPsiteRoom.Remove(psiteroom);
+            await _context.SaveChangesAsync();
+            return "刪除 PSiteRoom 成功";
+        }
         private bool TProductsExists(int id)
         {
             return (_context.TProducts?.Any(e => e.ProductId == id)).GetValueOrDefault();

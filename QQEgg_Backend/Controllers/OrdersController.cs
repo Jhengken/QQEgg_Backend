@@ -37,7 +37,6 @@ namespace QQEgg_Backend.Controllers
                     CustomerName = o.Customer.Name,
                     ProductName = o.Product.Name,
                     OrderDate = o.OrderDate,
-                    ReturnDate = o.ReturnDate,
                     CancelDate = o.CancelDate,
                     StartDate = o.StartDate,
                     EndDate = o.EndDate,
@@ -49,10 +48,6 @@ namespace QQEgg_Backend.Controllers
             }
             else
                 return null!;   //回傳204，代表成功但沒有內容
-
-
-
-            return new List<OrdersDTO>();
         }
 
         // GET api/<OrdersController>/queryTrade/{id}
@@ -74,7 +69,6 @@ namespace QQEgg_Backend.Controllers
                     CustomerName = o.Customer.Name,
                     ProductName=o.Product.Name,
                     OrderDate=o.OrderDate,
-                    ReturnDate=o.ReturnDate,
                     CancelDate=o.CancelDate,
                     StartDate=o.StartDate,
                     EndDate=o.EndDate,
@@ -98,7 +92,6 @@ namespace QQEgg_Backend.Controllers
                 TradeNo = dto.TradeNo,
                 ProductId = dto.ProductId,
                 CustomerId = dto.CustomerId,
-                ReturnDate = dto.ReturnDate,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
             };
