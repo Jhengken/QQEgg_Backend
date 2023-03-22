@@ -226,7 +226,6 @@ namespace QQEgg_Backend.Controllers
                 Name = result.Name,
                 Email = result.Email,
                 Phone = result.Phone,
-                Password = result.Password,
             };
         }
 
