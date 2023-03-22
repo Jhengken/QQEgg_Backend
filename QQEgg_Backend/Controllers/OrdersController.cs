@@ -48,10 +48,6 @@ namespace QQEgg_Backend.Controllers
             }
             else
                 return null!;   //回傳204，代表成功但沒有內容
-
-
-
-            return new List<OrdersDTO>();
         }
 
         // GET api/<OrdersController>/queryTrade/{id}
