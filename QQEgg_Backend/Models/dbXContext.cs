@@ -366,7 +366,7 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.Image).HasMaxLength(50);
 
-                entity.Property(e => e.RoomPassWork).HasMaxLength(200);
+                entity.Property(e => e.RoomPassWord).HasMaxLength(200);
 
                 entity.Property(e => e.SiteId).HasColumnName("SiteID");
 

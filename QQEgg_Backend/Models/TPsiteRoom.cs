@@ -22,7 +22,7 @@ namespace QQEgg_Backend.Models
         public string? Image { get; set; }
         public bool? Status { get; set; }
         public string? Description { get; set; }
-        public string? RoomPassWork { get; set; }
+        public string? RoomPassWord { get; set; }
 
         public virtual TCategory Category { get; set; }
         public virtual TPsite Site { get; set; }
