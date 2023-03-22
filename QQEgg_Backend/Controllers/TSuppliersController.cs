@@ -44,6 +44,7 @@ namespace QQEgg_Backend.Controllers
                 Name = sup.Name,
                 Email = sup.Email,
                 Phone = sup.Phone,
+                Address= sup.Address,
                 Password = sup.Password,
             });
         }
@@ -65,6 +66,7 @@ namespace QQEgg_Backend.Controllers
                 Name = tSuppliers.Name,
                 Email = tSuppliers.Email,
                 Phone = tSuppliers.Phone,
+                Address= tSuppliers.Address,
                 Password = tSuppliers.Password,
             };
         }
@@ -127,6 +129,7 @@ namespace QQEgg_Backend.Controllers
                 Email = tSuppliers.Email,
                 Phone = tSuppliers.Phone,
                 Password = tSuppliers.PasswordHash,
+                Address= tSuppliers.Address,
                 BlackListed = false,
                 CreditPoints = 100
 

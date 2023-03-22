@@ -15,7 +15,7 @@ namespace QQEgg_Backend.Abstract
 
         public string? Phone { get; set; }
         public string? Password { get; set; }
-        [JsonIgnore]
+ 
         public string? Address { get; set; }
         [JsonIgnore]
         public bool? BlackListed { get; set; }
