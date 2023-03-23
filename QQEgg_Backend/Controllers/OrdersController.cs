@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using NuGet.Common;
 using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
+using SQLitePCL;
 using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,43 +22,104 @@ namespace QQEgg_Backend.Controllers
         {
             _context = context;
         }
+        
 
+        /// <summary>
+        /// 把顧客租的訂單顯示出來
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET: api/<OrdersController>/queryAll/{id}
         [HttpGet("queryAll/{id}")]
-        public async Task<List<OrdersDTO>> AllGet(int id)
+        public async Task<IEnumerable<OrdersDTO>> AllGet(int id)
         {
-            int customerId = id;
-
-            //使用Join，挑最新10筆訂單
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.CustomerId == customerId);
+            //最新 10 筆訂單
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.CustomerId == id);
             if (order != null)
             {
-                var o = _context.TCorders.Where(o => o.CustomerId == order.CustomerId).OrderByDescending(o=>o.OrderId).Take(10);
-                var dto = o.Join(_context.TCorderDetail, o => o.OrderId, od => od.OrderId, (o, od) => new OrdersDTO()
-                {
-                    OrderId = o.OrderId,
-                    TradeNo = o.TradeNo,
-                    CustomerName = o.Customer.Name,
-                    ProductName = o.Product.Name,
-                    OrderDate = o.OrderDate,
-                    ReturnDate = o.ReturnDate,
-                    CancelDate = o.CancelDate,
-                    StartDate = o.StartDate,
-                    EndDate = o.EndDate,
-                    Price = od.Price,
-                    CategoryName = od.Room.Category.Name,
-                    Discount = od.Coupon.Discount, //如果沒有使用coupon，一樣可以撈，前端再判斷是不是null
-                }).ToList();
-                return dto;
+                var result = from a in _context.TCorders select a;
+
+                var orders = await result.Include(o => o.TCorderDetail).ThenInclude(od => od.Room).Include(o => o.TCorderDetail).Include(od => od.Product).Where(o => o.CustomerId == id)
+                    .OrderByDescending(o => o.OrderId).Take(10).SelectMany(o =>o.TCorderDetail,(o,od)=> new OrdersDTO
+                    {
+                        OrderId = o.OrderId,
+                        CustomerName = o.Customer.Name,
+                        ProductName = o.Product.Name,
+                        StartDate = o.StartDate,
+                        EndDate = o.EndDate,
+                        CancelDate = o.CancelDate,
+                        TradeNo = o.TradeNo,
+                        CouponId = od.CouponId,
+                        Price = od.Price,
+                        RoomId = od.RoomId,
+                        Discount = od.Coupon.Discount,
+                        CategoryName = od.Room.Category.Name
+                    }).ToListAsync();
+             
+                return orders.ToList();
             }
-            else
-                return null!;   //回傳204，代表成功但沒有內容
+            return null;
+        }
+        //public async Task<List<OrdersDTO>> AllGet(int id)
+        //{
+        //    int customerId = id;
+
+        //    //使用Join，挑最新10筆訂單
+        //    TCorders order = _context.TCorders.FirstOrDefault(o => o.CustomerId == customerId);
+        //    if (order != null)
+        //    {
+        //        var o = _context.TCorders.Where(o => o.CustomerId == order.CustomerId).OrderByDescending(o=>o.OrderId).Take(10);
+        //        var dto = o.Join(_context.TCorderDetail, o => o.OrderId, od => od.OrderId, (o, od) => new OrdersDTO()
+        //        {
+        //            OrderId = o.OrderId,
+        //            TradeNo = o.TradeNo,
+        //            CustomerName = o.Customer.Name,
+        //            ProductName = o.Product.Name,
+        //            OrderDate = o.OrderDate,
+
+        //            CancelDate = o.CancelDate,
+        //            StartDate = o.StartDate,
+        //            EndDate = o.EndDate,
+        //            Price = od.Price,
+        //            CategoryName = od.Room.Category.Name,
+        //            Discount = od.Coupon.Discount, //如果沒有使用coupon，一樣可以撈，前端再判斷是不是null
+        //        }).ToList();
+        //        return dto;
+        //    }
+        //    else
+        //        return null!;   //回傳204，代表成功但沒有內容
+        //}
 
 
+        /// <summary>
+        /// 取消訂單
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        // PUT api/<OrdersController>/cancel/{id}
+        [HttpPut("cancel/{id}")]
+        public async Task<string> Put(int id)
+        {
+            int tradeNo = id;
 
-            return new List<OrdersDTO>();
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            if (order != null)
+            {
+                order.CancelDate = DateTime.Now;
+                _context.Entry(order).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return "修改完成";
+            }
+
+            return "無此訂單";
         }
 
+
+        /// <summary>
+        /// 搜尋單筆資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/<OrdersController>/queryTrade/{id}
         [HttpGet("queryTrade/{id}")]
         public async Task<OrdersDTO> TradeGet(int id)
@@ -74,12 +139,11 @@ namespace QQEgg_Backend.Controllers
                     CustomerName = o.Customer.Name,
                     ProductName=o.Product.Name,
                     OrderDate=o.OrderDate,
-                    ReturnDate=o.ReturnDate,
                     CancelDate=o.CancelDate,
                     StartDate=o.StartDate,
                     EndDate=o.EndDate,
                     Price=od.Price,
-                    CategoryName = od.Room.Category.Name,
+                    //CategoryName = od.Room.Category.Name,
                     Discount=od.Coupon.Discount, //如果沒有使用coupon，一樣可以撈，前端再判斷是不是null
                 }).ToList();
                 return dto[0];
@@ -98,7 +162,6 @@ namespace QQEgg_Backend.Controllers
                 TradeNo = dto.TradeNo,
                 ProductId = dto.ProductId,
                 CustomerId = dto.CustomerId,
-                ReturnDate = dto.ReturnDate,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
             };
@@ -122,24 +185,8 @@ namespace QQEgg_Backend.Controllers
             return "新增成功";
         }
 
-        // PUT api/<OrdersController>/cancel/{id}
-        [HttpPut("cancel/{id}")]
-        public async Task<string> Put(int id)
-        {
-            int tradeNo = id;
 
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
-            if (order != null)
-            {
-                order.CancelDate = DateTime.Now;
-                _context.Entry(order).State=EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return "修改完成";
-            }
-
-            return "無此訂單";
-        }
-
+       
         // DELETE api/<OrdersController>/delete/{id}
         [HttpDelete("delete/{id}")]
         public async Task<string> Delete(int id)
