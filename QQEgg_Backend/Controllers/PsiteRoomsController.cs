@@ -40,8 +40,19 @@ namespace QQEgg_Backend.Controllers
             {
                 return NotFound();
             }
-            
+
             return PRDTO(result);
+        }
+
+        // GET: api/GetCategory
+        [HttpGet("Category")]
+        public IEnumerable<CategoryDTO> GetCategory()
+        {
+            return _context.TCategory.Select(c => new CategoryDTO()
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+            });
         }
 
         private static PsiteRoomDTO PRDTO(TPsiteRoom room)
