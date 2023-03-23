@@ -34,7 +34,7 @@ namespace QQEgg_Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PsiteRoomDTO>> GetTPsiteRoom(int id)
         {
-            var result = _context.TPsiteRoom
+            var result = _context.TPsiteRoom.Include(a=>a.Site)
                 .Where(a => a.RoomId == id).SingleOrDefault();
             if (result == null)
             {
@@ -56,6 +56,7 @@ namespace QQEgg_Backend.Controllers
                 Image = room.Image,
                 Status = room.Status,
                 RoomDescription = room.Description,
+                OpenTime = room.Site.OpenTime,
             };
         }
         // PUT: api/PsiteRooms/5
