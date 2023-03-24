@@ -40,7 +40,7 @@ namespace QQEgg_Backend.Controllers
         {
             return _context.TSuppliers.Select(sup => new SuppliersDTO
             {
-                SupplierId = sup.SupplierId,
+                //SupplierId = sup.SupplierId,
                 Name = sup.Name,
                 Email = sup.Email,
                 Phone = sup.Phone,
@@ -62,7 +62,7 @@ namespace QQEgg_Backend.Controllers
 
             return new SuppliersDTO
             {
-                SupplierId = tSuppliers.SupplierId,
+                //SupplierId = tSuppliers.SupplierId,
                 Name = tSuppliers.Name,
                 Email = tSuppliers.Email,
                 Phone = tSuppliers.Phone,
@@ -76,7 +76,7 @@ namespace QQEgg_Backend.Controllers
         [Authorize]
 
         [HttpPut("id")]
-        public async Task<string> PutTSuppliers(int id, [FromBody] SuppliersDTO tSuppliers)
+        public async Task<IActionResult> PutTSuppliers(int id, [FromBody] SuppliersDTO tSuppliers)
         {
             var result = (from s in _context.TSuppliers where s.SupplierId == id select s).SingleOrDefault();
             if (result != null)
@@ -84,35 +84,43 @@ namespace QQEgg_Backend.Controllers
                 result.Name = tSuppliers.Name;
                 result.Email = tSuppliers.Email;
                 result.Phone = tSuppliers.Phone;
+                result.Address = tSuppliers.Address;
                 // 检查是否有更新密码
-                if (!string.IsNullOrEmpty(tSuppliers.Password))
-                {
-                    result.Password = tSuppliers.Password; // 儲存原始密碼
-                    tSuppliers.EncryptPassword(); // 對原始密碼加密
-                    result.Password = tSuppliers.PasswordHash; // 儲存加密後密碼
-                                                               // 生成新的JWT令牌
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:KEY"]);
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Name, result.Name),
-                            new Claim(JwtRegisteredClaimNames.Email, result.Email)
-                        }),
-                        Expires = DateTime.UtcNow.AddDays(7),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString = tokenHandler.WriteToken(token);
-                    return tokenString;
-                }
-            }
+                //if (!string.IsNullOrEmpty(tSuppliers.Password))
+                // {
+                //  result.Password = tSuppliers.Password; // 儲存原始密碼
+                //  tSuppliers.EncryptPassword(); // 對原始密碼加密
+                //  result.Password = tSuppliers.PasswordHash; // 儲存加密後密碼
+                // 生成新的JWT令牌
+                var claims = new List<Claim>
+                            {
+                                 new Claim(JwtRegisteredClaimNames.Sub, result.SupplierId.ToString()), // 添加用户 ID 作为 subject
+                                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                                 new Claim("Name",result.Name),
+                                 new Claim(JwtRegisteredClaimNames.Email, result.Email)
 
-            //_context.Entry(result).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return "修改成功";
+
+                        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddDays(7),
+                    signingCredentials: signIn);
+                await _context.SaveChangesAsync();
+                return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+            }
+            else
+            {
+                return BadRequest("格式錯誤");
+            }
         }
+
+       
 
         // POST: api/TSuppliers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -170,7 +178,8 @@ namespace QQEgg_Backend.Controllers
                                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                                  new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                                  new Claim("Name",SUser.Name),
-                                 new Claim(JwtRegisteredClaimNames.Email, tSuppliers.Email)
+                                 new Claim(JwtRegisteredClaimNames.Email, tSuppliers.Email),
+                                 new Claim("Phone",SUser.Phone),
 
                         };
 
@@ -212,7 +221,7 @@ namespace QQEgg_Backend.Controllers
         /// <returns>回傳資訊</returns>
         [Authorize]
         [HttpGet("id")]
-        public async Task<CustomersPUTDTO> GetTCustomers(int id)
+        public async Task<SuppliersPUTDTO> GetSuppliers(int id)
         {
 
             var result = await _context.TCustomers.FindAsync(id);
@@ -221,11 +230,12 @@ namespace QQEgg_Backend.Controllers
                 return null;
             }
 
-            return new CustomersPUTDTO
+            return new SuppliersPUTDTO
             {
                 Name = result.Name,
                 Email = result.Email,
                 Phone = result.Phone,
+                
             };
         }
 
@@ -246,6 +256,27 @@ namespace QQEgg_Backend.Controllers
 
             return "刪除成功";
         }
+
+        [HttpPost("check-information/{id}")]
+        [Authorize]
+        public async Task<IActionResult> checkinformation(int id, [FromBody] KeyWordRequest keyWordRequest)
+        {
+            string KeyWord = keyWordRequest.KeyWord;
+            var users = await (from a in _context.TSuppliers where a.SupplierId != id select a).ToListAsync();
+            if (users != null)
+            {
+                if (users.Any(u => u.Email == KeyWord))
+                {
+                    return BadRequest(new { message = "此信箱已被使用" });
+                }
+                if (users.Any(u => u.Phone == KeyWord))
+                {
+                    return BadRequest(new { message = "此手機已被使用" });
+                }
+            }
+            return Ok();
+        }
+
 
         private bool TSuppliersExists(int id)
         {
