@@ -18,7 +18,7 @@ builder.Services.AddDbContext<dbXContext>(
  options => options.UseSqlServer(
  builder.Configuration.GetConnectionString("dbXConnection")
 ));
-
+builder.Services.AddHttpClient();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
