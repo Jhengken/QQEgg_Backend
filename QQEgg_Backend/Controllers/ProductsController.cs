@@ -106,8 +106,11 @@ namespace QQEgg_Backend.Controllers
                 .Where(a => a.ProductId == id)
                 .SingleOrDefault();
 
-            if(result == null)
-                return null!;
+            if (result == null)
+            {
+                return NotFound();
+            }
+
             return ToDTO(result);
         }
 

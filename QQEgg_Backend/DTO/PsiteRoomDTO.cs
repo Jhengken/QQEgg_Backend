@@ -12,7 +12,8 @@ namespace QQEgg_Backend.DTO
         public int? Ping { get; set; }
         public string? Image { get; set; }
         public bool? Status { get; set; }
-        public string? RoomDescription { get; set; }        
+        public string? RoomDescription { get; set; }
+        public string? OpenTime { get; set; }
         public string? RoomPassWord { get; set; }
         public IFormFile? RoomPhoto { get; set; }
 
