@@ -252,7 +252,7 @@ namespace QQEgg_Backend.Controllers
             var coupons = (from c in _dbxContext.TCoupons select c).FirstOrDefault();
 
             //判斷顧客的帳號和黑名單
-            if (customerId != null && customer.BlackListed == true)
+            if (customerId != null && customer.BlackListed == false)
             {
                 //判斷顧客的優惠卷，秀出可以使用的優惠卷
                 if (customer.CreditPoints >= coupons.HowPoint)
