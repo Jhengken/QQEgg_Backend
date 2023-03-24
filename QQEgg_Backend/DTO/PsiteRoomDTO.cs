@@ -14,6 +14,7 @@ namespace QQEgg_Backend.DTO
         public bool? Status { get; set; }
         public string? RoomDescription { get; set; }        
         public string? RoomPassWord { get; set; }
-        
+        public IFormFile? RoomPhoto { get; set; }
+
     }
 }

@@ -20,8 +20,8 @@
         public string? ChoosePayment { get; set; }
         public string? EncryptType { get; set; }
         public string? ReturnURL { get; set; }
-        //public string? ClientBackURL { get; set; }  //顧客按下去會導回的Url
-        public string? OrderResultURL { get; set; }
+        public string? ClientBackURL { get; set; }  //顧客按下去會導回的Url
+        //public string? OrderResultURL { get; set; }  //POST到前端
         public string? Email { get; set; }
         public string? CustomField2 { get; set; }
         public string? CustomField3 { get; set; }
