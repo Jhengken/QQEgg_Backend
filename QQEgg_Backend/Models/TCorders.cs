@@ -23,6 +23,7 @@ namespace QQEgg_Backend.Models
 
         public virtual TCustomers Customer { get; set; }
         public virtual TProducts Product { get; set; }
+       
         public virtual ICollection<TCorderDetail> TCorderDetail { get; set; }
     }
 }

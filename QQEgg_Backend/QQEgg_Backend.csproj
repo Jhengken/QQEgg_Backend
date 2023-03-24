@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="EfCore.SchemaCompare" Version="6.0.0" />
     <PackageReference Include="github.hyfree.Bcrypt.NetCore" Version="1.0.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.60.0" />
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.15" />
@@ -24,13 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Abstract\" />
     <Folder Include="Middleware\" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
     <Folder Include="Middleware\" />
     <Folder Include="Middleware\" />
     <Folder Include="Middleware\" />
-    <Folder Include="Models\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

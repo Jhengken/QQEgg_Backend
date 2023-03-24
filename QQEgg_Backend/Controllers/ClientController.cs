@@ -17,6 +17,7 @@ using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Authorization;
+using static IdentityServer4.Models.IdentityResources;
 
 namespace QQEgg_Backend.Controllers
 {
@@ -40,7 +41,7 @@ namespace QQEgg_Backend.Controllers
         /// <returns>註冊完成</returns>
         [AllowAnonymous]
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody]CustomersDTO value)
+        public async Task<IActionResult> Register([FromBody] CustomersDTO value)
         {
 
             value.EncryptPassword();
@@ -49,7 +50,7 @@ namespace QQEgg_Backend.Controllers
             {
                 Name = value.Name,
                 Email = value.Email,
-               // Birth = value.Birth,
+                // Birth = value.Birth,
                 Password = value.PasswordHash,// 將加密後的密碼存入資料
                 Phone = value.Phone,
                 //Sex = value.Sex,
@@ -94,7 +95,8 @@ namespace QQEgg_Backend.Controllers
                                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                                  new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                                  new Claim("Name",user.Name),
-                                 new Claim(JwtRegisteredClaimNames.Email, value.Email)
+                                 new Claim(JwtRegisteredClaimNames.Email, value.Email),
+                                 new Claim("Phone",user.Phone),
 
                         };
 
@@ -150,10 +152,10 @@ namespace QQEgg_Backend.Controllers
                 Name = result.Name,
                 Email = result.Email,
                 Phone = result.Phone,
-                Birth = result.Birth,
-                CreditCard = result.CreditCard,
-                Sex = result.Sex,
-                Password = result.Password,
+                //Birth = result.Birth,
+                //CreditCard = result.CreditCard,
+                //Sex = result.Sex,
+                //Password = result.Password,
             };
         }
 
@@ -166,7 +168,7 @@ namespace QQEgg_Backend.Controllers
         // PUT: api/Customers/5
         [Authorize]
         [HttpPut("id")]
-        public async Task<string> PutTCustomers(int id, [FromBody] CustomersPUTDTO tCustomers)
+        public async Task<IActionResult> PutTCustomers(int id, [FromBody] CustomersPUTDTO tCustomers)
         {
             var result = (from c in _dbxContext.TCustomers where c.CustomerId == id select c).SingleOrDefault();
             if (result != null)
@@ -174,37 +176,66 @@ namespace QQEgg_Backend.Controllers
                 result.Name = tCustomers.Name;
                 result.Email = tCustomers.Email;
                 result.Phone = tCustomers.Phone;
-                result.Birth = tCustomers.Birth;
-                result.CreditCard = tCustomers.CreditCard;
-                result.Sex = tCustomers.Sex;
+                //result.Birth = tCustomers.Birth;
+                //result.CreditCard = tCustomers.CreditCard;
+                //result.Sex = tCustomers.Sex;
                 // 检查是否有更新密码
-                if (!string.IsNullOrEmpty(tCustomers.Password))
+                //if (!string.IsNullOrEmpty(tCustomers.Password))
+                //{
+                //    result.Password = tCustomers.Password; // 儲存原始密碼
+                //    tCustomers.EncryptPassword(); // 對原始密碼加密
+                //    result.Password = tCustomers.PasswordHash; // 儲存加密後密碼
+                // 生成新的JWT令牌
+                var claims = new List<Claim>
+                            {
+                                 new Claim(JwtRegisteredClaimNames.Sub, result.CustomerId.ToString()), // 添加用户 ID 作为 subject
+                                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                                 new Claim("Name",result.Name),
+                                 new Claim(JwtRegisteredClaimNames.Email, result.Email)
+
+
+                        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.UtcNow.AddDays(7),
+                    signingCredentials: signIn);
+                await _dbxContext.SaveChangesAsync();
+                return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+            }
+            else
+            {
+                return BadRequest("格式錯誤");
+            }
+        }
+
+
+
+
+
+        [HttpPost("check-information/{id}")]
+        [Authorize]
+        public async Task<IActionResult> checkinformation(int id, [FromBody]KeyWordRequest keyWordRequest)
+        {
+            string KeyWord = keyWordRequest.KeyWord;
+            var users = await (from a in _dbxContext.TCustomers where a.CustomerId != id select a).ToListAsync();
+            if (users != null)
+            {
+                if (users.Any(u => u.Email == KeyWord))
                 {
-                    result.Password = tCustomers.Password; // 儲存原始密碼
-                    tCustomers.EncryptPassword(); // 對原始密碼加密
-                    result.Password = tCustomers.PasswordHash; // 儲存加密後密碼
-                                                               // 生成新的JWT令牌
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:KEY"]);
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Name, result.Name),
-                            new Claim(JwtRegisteredClaimNames.Email, result.Email)
-                        }),
-                        Expires = DateTime.UtcNow.AddDays(7),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString = tokenHandler.WriteToken(token);
-                    return tokenString;
+                    return BadRequest(new { message = "此信箱已被使用" });
+                }
+                if (users.Any(u => u.Phone == KeyWord))
+                {
+                    return BadRequest(new { message = "此手機已被使用" });
                 }
             }
-
-            //_context.Entry(result).State = EntityState.Modified;
-            await _dbxContext.SaveChangesAsync();
-            return "修改成功";
+            return Ok();
         }
 
         //GET: api/TCoupons
@@ -267,14 +298,14 @@ namespace QQEgg_Backend.Controllers
 
         [HttpGet("ListCoupon")]
         [AllowAnonymous]
-        public async Task<IEnumerable<CouponDTO>> ListCoupon() 
+        public async Task<IEnumerable<CouponDTO>> ListCoupon()
         {
             return _dbxContext.TCoupons.Select(c => new CouponDTO
             {
                 CouponId = c.CouponId,
-                Code= c.Code,
-                HowPoint= c.HowPoint,
-                Discount= c.Discount,
+                Code = c.Code,
+                HowPoint = c.HowPoint,
+                Discount = c.Discount,
             }).ToList();
 
         }
@@ -284,7 +315,7 @@ namespace QQEgg_Backend.Controllers
         private static Dictionary<string, List<string>> _userCouponClaims = new Dictionary<string, List<string>>();
 
         [HttpGet("claimCoupon/{id}")]
-        [Authorize] 
+        [Authorize]
         public IActionResult ClaimCoupon(int id)
         {
             string code = id.ToString();
@@ -297,7 +328,7 @@ namespace QQEgg_Backend.Controllers
 
             string userId = userIdClaim.Value;
 
-  
+
             if (_userCouponClaims.ContainsKey(userId) && _userCouponClaims[userId].Contains(code))
             {
                 return BadRequest(new { success = false, message = "領過優惠卷" });
