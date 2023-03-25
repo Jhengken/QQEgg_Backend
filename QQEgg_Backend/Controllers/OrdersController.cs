@@ -42,7 +42,7 @@ namespace QQEgg_Backend.Controllers
                 var orders = await result.Include(o => o.TCorderDetail).ThenInclude(od => od.Room).Include(o => o.TCorderDetail).Include(od => od.Product).Where(o => o.CustomerId == id)
                     .OrderByDescending(o => o.OrderId).Take(10).SelectMany(o =>o.TCorderDetail,(o,od)=> new OrdersDTO
                     {
-                        OrderId = o.OrderId,
+                        //OrderId = o.OrderId,
                         CustomerName = o.Customer.Name,
                         ProductName = o.Product.Name,
                         StartDate = o.StartDate,
@@ -105,7 +105,7 @@ namespace QQEgg_Backend.Controllers
                 var od = _context.TCorderDetail.Where(od => od.OrderId == order.OrderId);
                 var dto = o.Join(od, o => o.OrderId, od => od.OrderId, (o, od) => new OrdersDTO()
                 {
-                    OrderId = o.OrderId,
+                    
                     TradeNo=o.TradeNo,
                     CustomerName = o.Customer.Name,
                     ProductName=o.Product.Name,
@@ -126,15 +126,17 @@ namespace QQEgg_Backend.Controllers
 
         // POST api/<OrdersController>/create
         [HttpPost("create")]
-        public async Task<string> Post([FromBody] OrdersDTO dto)
+        public async Task<string> Post([FromBody] OrderPostDTO dto)
         {
             TCorders cOrder = new TCorders()
             {
+                OrderId = dto.OrderId,
                 TradeNo = dto.TradeNo,
-                ProductId = dto.ProductId,
+                ProductId = dto.ProductId,                        
                 CustomerId = dto.CustomerId,
+                OrderDate = dto.OrderDate,
                 StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
+                EndDate = dto.EndDate,               
             };
             _context.TCorders.Add(cOrder);
             await _context.SaveChangesAsync();
@@ -147,7 +149,6 @@ namespace QQEgg_Backend.Controllers
                 {
                     OrderId = orderId.OrderId,
                     RoomId = dto.RoomId,
-                    CouponId = dto.CouponId,
                     Price = dto.Price,
                 };
                 _context.TCorderDetail.Add(cOrderDetail);

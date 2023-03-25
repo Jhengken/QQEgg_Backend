@@ -4,9 +4,11 @@ namespace QQEgg_Backend.DTO
 {
     public class PsiteRoomDTO
     {
-        public int RoomId { get; set; }        
+        public int RoomId { get; set; }
+        public int? productId { get; set; }
         public int? SiteId { get; set; }
         public int? CategoryId { get; set; }
+        public string? CategoryName { get; set; }
         public decimal? HourPrice { get; set; }
         public decimal? DatePrice { get; set; }
         public int? Ping { get; set; }
