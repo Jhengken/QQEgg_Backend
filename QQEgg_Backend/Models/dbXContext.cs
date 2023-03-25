@@ -149,11 +149,7 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.ProductId).HasColumnName("ProductID");
 
-                entity.Property(e => e.ReturnDate).HasColumnType("datetime");
-
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
-
-                entity.Property(e => e.TradeNo).HasMaxLength(20);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.TCorders)
@@ -338,7 +334,9 @@ namespace QQEgg_Backend.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.OpenTime).HasMaxLength(50);
+                entity.Property(e => e.OpenTime)
+                    .HasMaxLength(50)
+                    .HasDefaultValueSql("('06:00~24:00')");
 
                 entity.Property(e => e.ProductId).HasColumnName("ProductID");
 
@@ -366,7 +364,7 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.Image).HasMaxLength(50);
 
-                entity.Property(e => e.RoomPassWork).HasMaxLength(200);
+                entity.Property(e => e.RoomPassWord).HasMaxLength(200);
 
                 entity.Property(e => e.SiteId).HasColumnName("SiteID");
 

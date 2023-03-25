@@ -7,17 +7,18 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+string MyAllowOrigins = "AllowAny";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("*").WithHeaders("*").WithMethods("*"));
+});
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<dbXContext>(
  options => options.UseSqlServer(
  builder.Configuration.GetConnectionString("dbXConnection")
 ));
-string MyAllowOrigins = "AllowAny";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowOrigins, policy => policy.WithOrigins("*").WithHeaders("*").WithMethods("*"));
-});
+builder.Services.AddHttpClient();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
@@ -53,7 +54,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // 加入 TokenMiddleware 中介軟體
-app.UseMiddleware<TokenMiddleware>();
+//app.UseMiddleware<TokenMiddleware>();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
@@ -61,3 +62,5 @@ app.UseEndpoints(endpoints =>
 app.MapControllers();
 
 app.Run();
+
+
