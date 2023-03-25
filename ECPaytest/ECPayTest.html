@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form id='payForm' action='https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5' method='post'><input
+            type='hidden' name='MerchantID' value='3002599' /><input type='hidden' name='MerchantTradeNo'
+            value='20230325003532694825' /><input type='hidden' name='MerchantTradeDate'
+            value='2023/03/25 00:35:32' /><input type='hidden' name='PaymentType' value='aio' /><input type='hidden'
+            name='TotalAmount' value='11' /><input type='hidden' name='TradeDesc' value='空間類型' /><input type='hidden'
+            name='ItemName' value='string' /><input type='hidden' name='ChoosePayment' value='Credit' /><input
+            type='hidden' name='EncryptType' value='1' /><input type='hidden' name='ReturnURL'
+            value='https://b190-2001-b011-e607-1197-24c2-56cc-5a99-4c85.jp.ngrok.io/api/Orders/ECPayReturn' /><input
+            type='hidden' name='ClientBackURL' value='https://www.google.com.tw/' /><input type='hidden' name='Email'
+            value='string' /><input type='hidden' name='CustomField2' value='' /><input type='hidden'
+            name='CustomField3' value='' /><input type='hidden' name='CustomField4' value='' /><input type='hidden'
+            name='CheckMacValue' value='077E049F91F938275AAEB9CBB4499B48BCC30E3A2404BF01DDB510428EB2ABB4' /></form>
+</body>
+<script>
+    document.getElementById('payForm').submit();
+</script>
+
+</html>
+
+<!--
+{
+"totalAmount": "11",
+"itemName": "string",
+"email": "string"
+} 
+-->

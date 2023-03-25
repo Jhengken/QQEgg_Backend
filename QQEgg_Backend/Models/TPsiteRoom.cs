@@ -16,13 +16,14 @@ namespace QQEgg_Backend.Models
         public int RoomId { get; set; }
         public int? SiteId { get; set; }
         public int? CategoryId { get; set; }
-        public decimal? HourPrice { get; set; }
-        public decimal? DatePrice { get; set; }
+        public int? HourPrice { get; set; }
+        public int? DatePrice { get; set; }
         public int? Ping { get; set; }
         public string Image { get; set; }
+        public string Iframe { get; set; }
         public bool? Status { get; set; }
-        public string? Description { get; set; }
-        public string? RoomPassWord { get; set; }
+        public string Description { get; set; }
+        public string RoomPassWord { get; set; }
 
         public virtual TCategory Category { get; set; }
         public virtual TPsite Site { get; set; }

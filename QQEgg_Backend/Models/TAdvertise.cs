@@ -14,7 +14,7 @@ namespace QQEgg_Backend.Models
 
         public int AdvertiseId { get; set; }
         public string Name { get; set; }
-        public decimal? DatePrice { get; set; }
+        public int? DatePrice { get; set; }
 
         public virtual ICollection<TAorders> TAorders { get; set; }
     }

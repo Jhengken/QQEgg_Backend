@@ -9,8 +9,8 @@ namespace QQEgg_Backend.DTO
         public int? SiteId { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
-        public decimal? HourPrice { get; set; }
-        public decimal? DatePrice { get; set; }
+        public int? HourPrice { get; set; }
+        public int? DatePrice { get; set; }
         public int? Ping { get; set; }
         public string? Image { get; set; }
         public bool? Status { get; set; }
