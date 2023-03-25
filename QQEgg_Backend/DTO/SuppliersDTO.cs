@@ -5,7 +5,7 @@ namespace QQEgg_Backend.DTO
 {
     public class SuppliersDTO: SupplierAbstractDTOValidation
     {
-        public string Password { get; set; }
+        public string? Password { get; set; }
 		[JsonIgnore]
 		public string? PasswordHash { get; set; } // 新增一個屬性用來表示加密後的密碼
 

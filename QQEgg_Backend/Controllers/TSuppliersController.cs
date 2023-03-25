@@ -74,9 +74,8 @@ namespace QQEgg_Backend.Controllers
         // PUT: api/TSuppliers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
-
-        [HttpPut("id")]
-        public async Task<IActionResult> PutTSuppliers(int id, [FromBody] SuppliersDTO tSuppliers)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTSuppliers(int id, SuppliersDTO tSuppliers)
         {
             var result = (from s in _context.TSuppliers where s.SupplierId == id select s).SingleOrDefault();
             if (result != null)
@@ -213,33 +212,31 @@ namespace QQEgg_Backend.Controllers
             return Ok(new { token = "" });
         }
 
-        // GET: api/Customers/5
-        /// <summary>
-        /// 顧客點開帳戶資訊可以查詢到填入資料
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>回傳資訊</returns>
-        [Authorize]
-        [HttpGet("id")]
-        public async Task<SuppliersPUTDTO> GetSuppliers(int id)
-        {
+		// GET: api/TSuppliers/id?id={}
+		/// <summary>
+		/// 顧客點開帳戶資訊可以查詢到填入資料
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns>回傳資訊</returns>
+		//[Authorize]
+  //      [HttpGet("id")]
+  //      public async Task<SuppliersPUTDTO> GetSuppliers(int id)
+  //      {
 
-            var result = await _context.TCustomers.FindAsync(id);
-            if (result == null)
-            {
-                return null;
-            }
+  //          var result = await _context.TSuppliers.FindAsync(id);
+  //          if (result == null)
+  //          {
+  //              return null;
+  //          }
 
-            return new SuppliersPUTDTO
-            {
-                Name = result.Name,
-                Email = result.Email,
-                Phone = result.Phone,
+  //          return new SuppliersPUTDTO
+  //          {
+  //              Name = result.Name,
+  //              Email = result.Email,
+  //              Phone = result.Phone,
                 
-            };
-        }
-
-
+  //          };
+  //      }
 
         // DELETE: api/TSuppliers/5
         [HttpDelete("{id}")]
