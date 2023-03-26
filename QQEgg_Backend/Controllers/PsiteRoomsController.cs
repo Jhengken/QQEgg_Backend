@@ -77,32 +77,33 @@ namespace QQEgg_Backend.Controllers
         // PUT: api/PsiteRooms/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTPsiteRoom(int id, TPsiteRoom tPsiteRoom)
+        public string  PutTPsiteRoom([FromBody] PsiteRoomDTO pd)
         {
-            if (id != tPsiteRoom.RoomId)
-            {
-                return BadRequest();
-            }
+            var existingPsiteRoom = _context.TPsiteRoom.SingleOrDefault(r => r.RoomId == pd.RoomId);
 
-            _context.Entry(tPsiteRoom).State = EntityState.Modified;
-
-            try
+            if (existingPsiteRoom != null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TPsiteRoomExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                // Update properties for the existing PsiteRoom
+                
+                
+                existingPsiteRoom.CategoryId = pd.CategoryId;
+                existingPsiteRoom.HourPrice = pd.HourPrice;
+                existingPsiteRoom.DatePrice = pd.DatePrice;
+                existingPsiteRoom.Ping = pd.Ping;
+                existingPsiteRoom.Image = pd.Image;
+                existingPsiteRoom.Status = pd.Status;
+                existingPsiteRoom.Description = pd.RoomDescription;              
+                existingPsiteRoom.RoomPassWord = pd.RoomPassWord;
+                existingPsiteRoom.Iframe = pd.Iframe;
+                // ... update other properties as needed
 
-            return NoContent();
+                _context.SaveChanges();
+                return "ok";
+            }
+            else
+            {
+                return "error";
+            }
         }
 
         // POST: api/PsiteRooms

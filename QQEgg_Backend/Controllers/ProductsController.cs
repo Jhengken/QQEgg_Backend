@@ -117,32 +117,56 @@ namespace QQEgg_Backend.Controllers
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTProducts(int id, TProducts tProducts)
+        public string PutTProducts(int id, [FromBody] ProductsPutDTO pd)
         {
-            if (id != tProducts.ProductId)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(tProducts).State = EntityState.Modified;
+            var updated = _context.TProducts.Include(p => p.TPsite).SingleOrDefault(a => a.ProductId == id);
 
-            try
+            if (updated != null)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TProductsExists(id))
+                updated.SupplierId = pd.SupplierId;
+                updated.Name = pd.Name;
+
+                // Update Psite children
+                if (pd.Psite != null)
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    foreach (var psiteDto in pd.Psite)
+                    {
+                        var existingPsite = updated.TPsite.SingleOrDefault(p => p.SiteId == psiteDto.SiteId);
 
-            return NoContent();
+                        if (existingPsite != null)
+                        {
+                            // Update properties for the existing Psite
+                            existingPsite.Name = psiteDto.Name;
+                            existingPsite.Image = psiteDto.Image;
+                            existingPsite.OpenTime = psiteDto.OpenTime;
+                            existingPsite.Latitude = psiteDto.Latitude;
+                            existingPsite.Longitude = psiteDto.Longitude;
+                            existingPsite.Address = psiteDto.Address;
+                            existingPsite.Description = psiteDto.SiteDescription;
+                            // ... update other properties as needed
+                        }
+                        else
+                        {
+                            // Create a new Psite if it doesn't exist
+                            updated.TPsite.Add(new TPsite
+                            {
+                                
+                                ProductId = psiteDto.ProductId,
+                                Name = psiteDto.Name,
+                                // ... set other properties from the psiteDto
+                            });
+                        }
+                    }
+                }
+
+                _context.SaveChanges();
+                return "ok";
+            }
+            else
+            {
+                return "error";
+            }
         }
 
         // POST: api/Products
