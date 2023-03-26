@@ -155,7 +155,7 @@ namespace QQEgg_Backend.Controllers
         private byte[] GenerateQRCode()
         {
             var productCode = _dbXContext.TPsiteRoom.Select(a => a.RoomId).FirstOrDefault().ToString();
-            var roomPassword = _dbXContext.TPsiteRoom.Select(a => a.Description).FirstOrDefault().ToString();
+            var roomPassword = _dbXContext.TPsiteRoom.Select(a => a.RoomPassWord).FirstOrDefault().ToString();
             var aesKey = new byte[32]; // 產生 256 bits 的 key
             var aesIv = new byte[16]; // 產生 128 bits 的 IV
             using (var rng = RandomNumberGenerator.Create())
@@ -166,55 +166,62 @@ namespace QQEgg_Backend.Controllers
             var encryptedProductCode = Encrypt(productCode, aesKey, aesIv);
             var encryptedRoomPassword = Encrypt(roomPassword, aesKey, aesIv);
             Console.WriteLine($"{encryptedProductCode},{encryptedRoomPassword}");
-            var expirationDate = DateTime.Now.AddDays(1);
-            var expirationDateStr = expirationDate.ToString("yyyy-MM-dd HH:mm:ss");
 
-            // 將加密後的產品代號和房間密碼加入 QR Code 中
-            var qrText = $"{encryptedProductCode};{encryptedRoomPassword};{expirationDateStr}"; // 添加失效日期到QR码文本中
-            Console.WriteLine(qrText);
+            var expirationDateObj = _dbXContext.TCorders.Select(a => a.EndDate).FirstOrDefault();
 
-            var width = 500; // width of the QR Code
-            var height = 500; // height of the QR Code
-            var margin = 0;
-            var qrCodeWriter = new ZXing.BarcodeWriterPixelData
+            if (expirationDateObj != null)
             {
-                Format = ZXing.BarcodeFormat.QR_CODE,
-                Options = new QrCodeEncodingOptions
+                DateTime expirationDate = DateTime.Parse(expirationDateObj.ToString());
+                var expirationDateStr = expirationDate.ToString("yyyy-MM-dd HH:mm:ss");
+                // 將加密後的產品代號和房間密碼加入 QR Code 中
+                var qrText = $"{encryptedProductCode};{encryptedRoomPassword};{expirationDateStr}"; // 添加失效日期到QR码文本中
+                var width = 500; // width of the QR Code
+                var height = 500; // height of the QR Code
+                var margin = 0;
+                var qrCodeWriter = new ZXing.BarcodeWriterPixelData
                 {
-                    Height = height,
-                    Width = width,
-                    Margin = margin
-                }
-            };
-            var pixelData = qrCodeWriter.Write(qrText);
-            // creating a PNG bitmap from the raw pixel data; if only black and white colors are used it makes no difference if the raw pixel data is BGRA oriented and the bitmap is initialized with RGB
-            using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-            {
-                using (var ms = new MemoryStream())
+                    Format = ZXing.BarcodeFormat.QR_CODE,
+                    Options = new QrCodeEncodingOptions
+                    {
+                        Height = height,
+                        Width = width,
+                        Margin = margin,
+                        PureBarcode = false,
+                        ErrorCorrection = ZXing.QrCode.Internal.ErrorCorrectionLevel.H
+                        //調整二維碼的糾錯等級：提高二維碼的糾錯等級，使其能夠容納更多的損壞資訊。在生成二維碼時，您需要指定糾錯等級。糾錯等級有四個，分別是 L（7 %），M（15 %），Q（25 %）和 H（30 %）。
+                    }
+                };
+                var pixelData = qrCodeWriter.Write(qrText);
+                // creating a PNG bitmap from the raw pixel data; if only black and white colors are used it makes no difference if the raw pixel data is BGRA oriented and the bitmap is initialized with RGB
+                using (var bitmap = new System.Drawing.Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
                 {
-                    var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    try
+                    using (var ms = new MemoryStream())
                     {
-                        // we assume that the row stride of the bitmap is aligned to 4 byte multiplied by the width of the image
-                        System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
-                    }
-                    finally
-                    {
-                        bitmap.UnlockBits(bitmapData);
-                    }
-                    //var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\後端C#\QQEgg_Backend\images\poop (1).png"); // 读取 logo 图片
-                    //var g = Graphics.FromImage(bitmap);
-                    //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    //g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
+                        var bitmapData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, pixelData.Width, pixelData.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        try
+                        {
+                            // we assume that the row stride of the bitmap is aligned to 4 byte multiplied by the width of the image
+                            System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                        }
+                        finally
+                        {
+                            bitmap.UnlockBits(bitmapData);
+                        }
+                        var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\256.png"); // 读取 logo 图片
+                        var g = Graphics.FromImage(bitmap);
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
 
-                    // save to folder
-                    //string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
-                    //bitmap.Save(Server.MapPath("~/qrr") + "/file-" + fileGuid + ".png", System.Drawing.Imaging.ImageFormat.Png);
-                    // save to stream as PNG
-                    bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                    return ms.ToArray();
+                        // save to folder
+                        string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
+
+                        // save to stream as PNG
+                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        return ms.ToArray();
+                    }             
                 }
             }
+            return null;
         }
         /// <summary>
         /// 比對顧客拿到的qrcode去跟訂房時間最比較，超過時間則不得進入
