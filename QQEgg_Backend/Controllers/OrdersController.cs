@@ -69,11 +69,11 @@ namespace QQEgg_Backend.Controllers
         /// <returns></returns>
         // PUT api/<OrdersController>/cancel/{id}
         [HttpPut("cancel/{id}")]
-        public async Task<string> Put(int id)
+        public async Task<string> Put(string id)
         {
-            int tradeNo = id;
+            string tradeNo = id;
 
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo)!;
             if (order != null)
             {
                 order.CancelDate = DateTime.Now;
@@ -93,12 +93,12 @@ namespace QQEgg_Backend.Controllers
         /// <returns></returns>
         // GET api/<OrdersController>/queryTrade/{id}
         [HttpGet("queryTrade/{id}")]
-        public async Task<OrdersDTO> TradeGet(int id)
+        public async Task<OrdersDTO> TradeGet(string id)
         {
-            int tradeNo = id;
+            string tradeNo = id;
 
             //使用join
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo)!;
             if (order != null)
             {
                 var o = _context.TCorders.Where(o => o.OrderId == order.OrderId);
@@ -160,11 +160,11 @@ namespace QQEgg_Backend.Controllers
        
         // DELETE api/<OrdersController>/delete/{id}
         [HttpDelete("delete/{id}")]
-        public async Task<string> Delete(int id)
+        public async Task<string> Delete(string id)
         {
-            int tradeNo = id;
+            string tradeNo = id;
 
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo)!;
             if (order != null)
             {
                 _context.TCorders.Remove(order);

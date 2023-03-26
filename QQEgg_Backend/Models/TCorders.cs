@@ -13,7 +13,7 @@ namespace QQEgg_Backend.Models
         }
 
         public int OrderId { get; set; }
-        public int? TradeNo { get; set; }
+        public string TradeNo { get; set; }
         public int? CustomerId { get; set; }
         public int? ProductId { get; set; }
         public DateTime OrderDate { get; set; }
@@ -23,7 +23,6 @@ namespace QQEgg_Backend.Models
 
         public virtual TCustomers Customer { get; set; }
         public virtual TProducts Product { get; set; }
-       
         public virtual ICollection<TCorderDetail> TCorderDetail { get; set; }
     }
 }
