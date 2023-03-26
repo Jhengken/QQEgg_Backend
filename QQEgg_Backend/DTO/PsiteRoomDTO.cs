@@ -17,6 +17,7 @@ namespace QQEgg_Backend.DTO
         public string? RoomDescription { get; set; }
         public string? OpenTime { get; set; }
         public string? RoomPassWord { get; set; }
+        public string Iframe { get; set; }
         public IFormFile? RoomPhoto { get; set; }
 
     }

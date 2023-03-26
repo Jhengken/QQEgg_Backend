@@ -71,6 +71,7 @@ namespace QQEgg_Backend.Controllers
                 Status = room.Status,
                 RoomDescription = room.Description,
                 OpenTime = room.Site.OpenTime,
+                Iframe =room.Iframe
             };
         }
         // PUT: api/PsiteRooms/5
