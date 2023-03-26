@@ -62,6 +62,7 @@ namespace QQEgg_Backend.Controllers
                 RoomId = room.RoomId,
                 productId = room.Site.ProductId,
                 SiteId = room.SiteId,
+                SiteName = room.Site.Name,
                 CategoryId = room.CategoryId,
                 CategoryName = room.Category.Name,
                 HourPrice = room.HourPrice,

@@ -18,6 +18,6 @@ namespace QQEgg_Backend.DTO
         public string? OpenTime { get; set; }
         public string? RoomPassWord { get; set; }
         public IFormFile? RoomPhoto { get; set; }
-
+        public string? SiteName { get; internal set; }
     }
 }

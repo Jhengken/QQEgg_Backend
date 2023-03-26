@@ -126,7 +126,7 @@ namespace QQEgg_Backend.Controllers
 
         }
 
-        // POST api/<OrdersController>/create
+        // POST api/<OrdersController>/payform
         [HttpPost("payform")]
         public async Task<string> ECPayForm([FromBody] OrderPostDTO dto)
         {
@@ -150,6 +150,7 @@ namespace QQEgg_Backend.Controllers
             return formString;
         }
 
+        // POST api/<OrdersController>/return-create
         [HttpPost("return-create")]
         public string ReturnCreate()
         {
