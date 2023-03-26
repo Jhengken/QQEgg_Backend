@@ -34,7 +34,7 @@ namespace QQEgg_Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PsiteRoomDTO>> GetTPsiteRoom(int id)
         {
-            var result = _context.TPsiteRoom.Include(a=>a.Site)
+            var result = _context.TPsiteRoom.Include(a=>a.Site).Include(a=>a.Category)
                 .Where(a => a.RoomId == id).SingleOrDefault();
             if (result == null)
             {
@@ -60,7 +60,10 @@ namespace QQEgg_Backend.Controllers
             return new PsiteRoomDTO
             {
                 RoomId = room.RoomId,
+                productId = room.Site.ProductId,
+                SiteId = room.SiteId,
                 CategoryId = room.CategoryId,
+                CategoryName = room.Category.Name,
                 HourPrice = room.HourPrice,
                 DatePrice = room.DatePrice,
                 Ping = room.Ping,
@@ -68,6 +71,7 @@ namespace QQEgg_Backend.Controllers
                 Status = room.Status,
                 RoomDescription = room.Description,
                 OpenTime = room.Site.OpenTime,
+                Iframe =room.Iframe
             };
         }
         // PUT: api/PsiteRooms/5

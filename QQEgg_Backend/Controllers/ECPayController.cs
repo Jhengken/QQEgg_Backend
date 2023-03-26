@@ -9,6 +9,8 @@ namespace QQEgg_Backend.Controllers
     [ApiController]
     public class ECPayController : ControllerBase
     {
+        //改去 OrdersController 那邊做
+
         [HttpPost]
         public string Post([FromBody] ECPayDetail detail)
         {

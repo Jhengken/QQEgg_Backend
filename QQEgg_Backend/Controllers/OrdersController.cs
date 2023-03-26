@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using QQEgg_Backend.DTO;
 using QQEgg_Backend.Models;
 using SQLitePCL;
 using System.Linq;
+using static IdentityServer4.Models.IdentityResources;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -42,7 +44,7 @@ namespace QQEgg_Backend.Controllers
                 var orders = await result.Include(o => o.TCorderDetail).ThenInclude(od => od.Room).Include(o => o.TCorderDetail).Include(od => od.Product).Where(o => o.CustomerId == id)
                     .OrderByDescending(o => o.OrderId).Take(10).SelectMany(o =>o.TCorderDetail,(o,od)=> new OrdersDTO
                     {
-                        OrderId = o.OrderId,
+                        //OrderId = o.OrderId,
                         CustomerName = o.Customer.Name,
                         ProductName = o.Product.Name,
                         StartDate = o.StartDate,
@@ -73,7 +75,7 @@ namespace QQEgg_Backend.Controllers
         {
             int tradeNo = id;
 
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo.ToString());
             if (order != null)
             {
                 order.CancelDate = DateTime.Now;
@@ -98,14 +100,14 @@ namespace QQEgg_Backend.Controllers
             int tradeNo = id;
 
             //使用join
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo.ToString());
             if (order != null)
             {
                 var o = _context.TCorders.Where(o => o.OrderId == order.OrderId);
                 var od = _context.TCorderDetail.Where(od => od.OrderId == order.OrderId);
                 var dto = o.Join(od, o => o.OrderId, od => od.OrderId, (o, od) => new OrdersDTO()
                 {
-                    OrderId = o.OrderId,
+                    
                     TradeNo=o.TradeNo,
                     CustomerName = o.Customer.Name,
                     ProductName=o.Product.Name,
@@ -125,46 +127,74 @@ namespace QQEgg_Backend.Controllers
         }
 
         // POST api/<OrdersController>/create
-        [HttpPost("create")]
-        public async Task<string> Post([FromBody] OrdersDTO dto)
+        [HttpPost("payform")]
+        public async Task<string> ECPayForm([FromBody] OrderPostDTO dto)
         {
-            TCorders cOrder = new TCorders()
+            ECPayDetail detail = new ECPayDetail()
             {
-                TradeNo = dto.TradeNo,
-                ProductId = dto.ProductId,
-                CustomerId = dto.CustomerId,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
+                ItemName = dto.ItemName,
+                TotalAmount = dto.Price.ToString(),
             };
-            _context.TCorders.Add(cOrder);
-            await _context.SaveChangesAsync();
+            var formString = new ECPayService().GetReturnValue(detail);
 
-            var orderId = _context.TCorders.OrderBy(o => o.OrderId).LastOrDefault(o => o.TradeNo == dto.TradeNo);
+            //先存起來，付款成功就建立訂單
+            OrderData.CustomerID = dto.CustomerId;
+            OrderData.ProductID = dto.ProductId;
+            OrderData.RoomID = dto.RoomId;
+            OrderData.Price = dto.Price;
+            OrderData.TradeNo = detail.MerchantTradeNo;
+            OrderData.StartDate = dto.StartDate;
+            OrderData.EndDate = dto.EndDate;
+            OrderData.CouponID = dto.CouponID;
 
-            if (orderId != null)
-            {
-                TCorderDetail cOrderDetail = new TCorderDetail()
-                {
-                    OrderId = orderId.OrderId,
-                    RoomId = dto.RoomId,
-                    CouponId = dto.CouponId,
-                    Price = dto.Price,
-                };
-                _context.TCorderDetail.Add(cOrderDetail);
-                await _context.SaveChangesAsync();
-            }
-            return "新增成功";
+            return formString;
         }
 
+        [HttpPost("return-create")]
+        public string ReturnCreate()
+        {
+            var form = Request.Form;
+            ECPayResult result = new ECPayService().GetCallbackResult(form);
+            //return result.ReceiveObj!;     //要看綠界回傳打開這行
 
-       
+            string rtnCode = form.First(r => r.Key == "RtnCode").Value[0];
+            if (rtnCode == "1")
+            {
+                TCorders cOrder = new TCorders()
+                {
+                    TradeNo = OrderData.TradeNo,
+                    ProductId = OrderData.ProductID,
+                    CustomerId = OrderData.CustomerID,
+                    StartDate = OrderData.StartDate,
+                    EndDate = OrderData.EndDate,
+                };
+                _context.TCorders.Add(cOrder);
+                 _context.SaveChanges();
+                
+                var orderId = _context.TCorders.OrderBy(o => o.OrderId).LastOrDefault(o => o.TradeNo == OrderData.TradeNo);
+                if (orderId != null)
+                {
+                    TCorderDetail cOrderDetail = new TCorderDetail()
+                    {
+                        OrderId = orderId.OrderId,
+                        RoomId = OrderData.RoomID,
+                        Price = OrderData.Price,
+                        CouponId = OrderData.CouponID,
+                    };
+                    _context.TCorderDetail.Add(cOrderDetail);
+                     _context.SaveChanges();
+                }
+            }
+                
+            return result.ResponseECPay!;
+        }
         // DELETE api/<OrdersController>/delete/{id}
         [HttpDelete("delete/{id}")]
         public async Task<string> Delete(int id)
         {
             int tradeNo = id;
 
-            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo);
+            TCorders order = _context.TCorders.FirstOrDefault(o => o.TradeNo == tradeNo.ToString());
             if (order != null)
             {
                 _context.TCorders.Remove(order);

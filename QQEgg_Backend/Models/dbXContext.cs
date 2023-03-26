@@ -43,8 +43,6 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.AdvertiseId).HasColumnName("AdvertiseID");
 
-                entity.Property(e => e.DatePrice).HasColumnType("money");
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -65,8 +63,6 @@ namespace QQEgg_Backend.Models
                 entity.Property(e => e.OrderDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(sysdatetime())");
-
-                entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.Property(e => e.SupplierId).HasColumnName("SupplierID");
 
@@ -105,8 +101,6 @@ namespace QQEgg_Backend.Models
                 entity.Property(e => e.RoomId).HasColumnName("RoomID");
 
                 entity.Property(e => e.CouponId).HasColumnName("CouponID");
-
-                entity.Property(e => e.Price).HasColumnType("money");
 
                 entity.HasOne(d => d.Coupon)
                     .WithMany(p => p.TCorderDetail)
@@ -150,6 +144,8 @@ namespace QQEgg_Backend.Models
                 entity.Property(e => e.ProductId).HasColumnName("ProductID");
 
                 entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.Property(e => e.TradeNo).HasMaxLength(20);
 
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.TCorders)
@@ -356,11 +352,9 @@ namespace QQEgg_Backend.Models
 
                 entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
 
-                entity.Property(e => e.DatePrice).HasColumnType("money");
-
                 entity.Property(e => e.Description).HasMaxLength(200);
 
-                entity.Property(e => e.HourPrice).HasColumnType("money");
+                entity.Property(e => e.Iframe).HasMaxLength(500);
 
                 entity.Property(e => e.Image).HasMaxLength(50);
 
