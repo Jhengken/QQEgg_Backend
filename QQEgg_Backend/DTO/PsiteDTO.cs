@@ -4,9 +4,9 @@ namespace QQEgg_Backend.DTO
 {
     public class PsiteDTO
     {
-        public int SiteId { get; set; }
-        public int ProductId { get; set; }
-        public string Name { get; set; }
+        public int? SiteId { get; set; }
+        public int? ProductId { get; set; }
+        public string? Name { get; set; }
         public string? Image { get; set; }
         public string? OpenTime { get; set; }
         public string? Latitude { get; set; }

@@ -14,19 +14,17 @@ namespace QQEgg_Backend.Models
             config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
         }
 
-        public string GetReturnValue(ECPayDetail detail)
+      public string GetReturnValue(ECPayDetail detail)
         {
             detail.MerchantID = config["MerchantID"];
-            detail.MerchantTradeNo = DateTime.Now.ToString("yyyyMMddHHmmssffffff");
-            detail.MerchantTradeDate = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
-            detail.ReturnURL = $"{config["HostURL"]}/api/ECPay/ECPayReturn";
-            //付款完成後導入的網址
-            detail.ClientBackURL = $"https://www.google.com.tw/";  //要看綠界回傳打開這行
+            detail.ReturnURL = $"{config["HostURL"]}/api/Orders/return-create";
 
             //CheckMacValue檢查碼
             //裡面有順序跟加上HashKey、IV、UrlEndcode、雜湊
             Dictionary<string, string> dic = ChangeForDictionary(detail);
             dic["CheckMacValue"] = GetCheckMacValue(dic);
+
+            //串成form
             StringBuilder strForm = new StringBuilder();
             strForm.AppendFormat("<form id='payForm' action='{0}' method='post'>", "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
             foreach (KeyValuePair<string, string> kvp in dic)

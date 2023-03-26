@@ -8,7 +8,7 @@ namespace QQEgg_Backend.Models
     public partial class TCorderDetail
     {
         public int OrderId { get; set; }
-        public int RoomId { get; set; }
+        public int? RoomId { get; set; }
         public int? CouponId { get; set; }
         public int? Price { get; set; }
 
