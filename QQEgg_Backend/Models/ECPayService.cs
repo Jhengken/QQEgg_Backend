@@ -1,4 +1,5 @@
-﻿using QQEgg_Backend.DTO;
+﻿using QQEgg_Backend.Controllers;
+using QQEgg_Backend.DTO;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,9 +10,11 @@ namespace QQEgg_Backend.Models
     public class ECPayService
     {
         public IConfiguration config { get; set; }
+
         public ECPayService()
         {
             config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
+      
         }
 
       public string GetReturnValue(ECPayDetail detail)

@@ -252,7 +252,7 @@ namespace QQEgg_Backend.Controllers
             var coupons = (from c in _dbxContext.TCoupons select c).FirstOrDefault();
 
             //判斷顧客的帳號和黑名單
-            if (customerId != null && customer.BlackListed == false)
+            if (customerId != null && customer.BlackListed == true)
             {
                 //判斷顧客的優惠卷，秀出可以使用的優惠卷
                 if (customer.CreditPoints >= coupons.HowPoint)
@@ -335,7 +335,7 @@ namespace QQEgg_Backend.Controllers
                                   .Select(a => a.CreditPoints)
                                   .FirstOrDefault();
                 var requiredPoints = _dbxContext.TCoupons.Where(c => c.Code == code).Select(a => a.HowPoint).SingleOrDefault();
-                if (userPoints < requiredPoints)
+                if (userPoints <= requiredPoints)
                 {
                     return BadRequest(new { success = false, message = "積分不足，無法領取優惠券" });
                 }
