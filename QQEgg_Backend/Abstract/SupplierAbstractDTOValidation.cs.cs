@@ -9,7 +9,8 @@ namespace QQEgg_Backend.Abstract
     {
        
 
-        public string Name { get; set; }
+        public int? SupplierId { get; set; }
+        public string? Name { get; set; }
  
         public string? Email { get; set; }
 
@@ -39,7 +40,7 @@ namespace QQEgg_Backend.Abstract
         {
             dbXContext context = (dbXContext)validationContext.GetService(typeof(dbXContext));
            
-            var FindEmail = from a in context.TSuppliers where a.Email == Email select a;
+            var FindEmail = from a in context.TSuppliers where a.Email == Email && a.SupplierId != SupplierId select a;
             //var FindPassword = from a in context.TSuppliers where a.Password == BCrypt.Net.BCryptHlper.HashPassword(Password) select a; // 对原始密码进行加密后再查询
             var dto = validationContext.ObjectInstance;
             if (this.GetType() == typeof(CustomersPUTDTO))
@@ -48,7 +49,8 @@ namespace QQEgg_Backend.Abstract
                 FindEmail = FindEmail.Where(a => a.Email != update.Email);
                // FindPassword = FindPassword.Where(a => a.Password != update.Password); // 这里需要将当前用户排除在外，因为它的密码已经被更新为新密码
             }
-            if (FindEmail.FirstOrDefault() != null)
+			//FindEmail.FirstOrDefault() != null
+			if (false)
             {
                 yield return new ValidationResult("此信箱已被使用", new string[] { "信箱" });
             };
