@@ -38,7 +38,7 @@ namespace QQEgg_Backend.Abstract
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            dbXContext context = (dbXContext)validationContext.GetService(typeof(dbXContext));
+            dbXContext context = (dbXContext)validationContext.GetService(typeof(dbXContext))!;
            
             var FindEmail = from a in context.TSuppliers where a.Email == Email && a.SupplierId != SupplierId select a;
             //var FindPassword = from a in context.TSuppliers where a.Password == BCrypt.Net.BCryptHlper.HashPassword(Password) select a; // 对原始密码进行加密后再查询
