@@ -100,10 +100,15 @@ namespace QQEgg_Backend.Controllers
             {
                 return BadRequest("找不到該標題");
             }
-
+            var roomid = await (from c in _dbXContext.TCorderDetail select c).FirstOrDefaultAsync(c => c.RoomId.ToString() == evaluationDTO.Title);
+            if (title == null)
+            {
+                return BadRequest("找不到該標題");
+            }
             var tEvaluations = new TEvaluations
             {
                 CustomerId = customer.CustomerId,
+                RoomId = evaluationDTO.RoomID,
                 TitleId = title.TitleId,
                 Description = evaluationDTO.Description,
                 Star = evaluationDTO.Star,

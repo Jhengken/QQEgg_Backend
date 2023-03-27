@@ -31,6 +31,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+}).AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration.GetValue<string>("Google:ClientId");
+    options.ClientSecret = builder.Configuration.GetValue<string>("Google:ClientSecret");
+}).AddFacebook(options =>
+{
+    options.ClientId = builder.Configuration.GetValue<string>("FacebookAuthSettings:AppId");
+    options.ClientSecret = builder.Configuration.GetValue<string>("FacebookAuthSettings:AppSecret");
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

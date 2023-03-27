@@ -34,6 +34,10 @@ namespace QQEgg_Backend.Controllers
 
         }
 
+        /// <summary>
+        /// 撈出所有資料
+        /// </summary>
+        /// <returns></returns>
         // GET: api/TSuppliers
         [HttpGet]
         public async Task<IEnumerable<SuppliersDTO>> GetTSuppliers()
@@ -49,28 +53,13 @@ namespace QQEgg_Backend.Controllers
             });
         }
 
-        // GET: api/TSuppliers/5
-        [HttpGet("{id}")]
-        public async Task<SuppliersDTO> GetTSuppliers(int id)
-        {
-            var tSuppliers = await _context.TSuppliers.FindAsync(id);
 
-            if (tSuppliers == null)
-            {
-                return null;
-            }
-
-            return new SuppliersDTO
-            {
-                //SupplierId = tSuppliers.SupplierId,
-                Name = tSuppliers.Name,
-                Email = tSuppliers.Email,
-                Phone = tSuppliers.Phone,
-                Address= tSuppliers.Address,
-                Password = tSuppliers.Password,
-            };
-        }
-
+        /// <summary>
+        /// 修改編輯業者資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="tSuppliers"></param>
+        /// <returns></returns>
         // PUT: api/TSuppliers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
@@ -212,32 +201,6 @@ namespace QQEgg_Backend.Controllers
             return Ok(new { token = "" });
         }
 
-		// GET: api/TSuppliers/id?id={}
-		/// <summary>
-		/// 顧客點開帳戶資訊可以查詢到填入資料
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns>回傳資訊</returns>
-		//[Authorize]
-  //      [HttpGet("id")]
-  //      public async Task<SuppliersPUTDTO> GetSuppliers(int id)
-  //      {
-
-  //          var result = await _context.TSuppliers.FindAsync(id);
-  //          if (result == null)
-  //          {
-  //              return null;
-  //          }
-
-  //          return new SuppliersPUTDTO
-  //          {
-  //              Name = result.Name,
-  //              Email = result.Email,
-  //              Phone = result.Phone,
-                
-  //          };
-  //      }
-
         // DELETE: api/TSuppliers/5
         [HttpDelete("{id}")]
         public async Task<string> DeleteTSuppliers(int id)
@@ -273,7 +236,6 @@ namespace QQEgg_Backend.Controllers
             }
             return Ok();
         }
-
 
         private bool TSuppliersExists(int id)
         {

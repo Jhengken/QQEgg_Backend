@@ -252,15 +252,15 @@ namespace QQEgg_Backend.Controllers
             var coupons = (from c in _dbxContext.TCoupons select c).FirstOrDefault();
 
             //判斷顧客的帳號和黑名單
-            if (customerId != null && customer.BlackListed == false)
+            if (customerId != null && customer.BlackListed == true)
             {
                 //判斷顧客的優惠卷，秀出可以使用的優惠卷
-                if (customer.CreditPoints >= coupons.HowPoint)
-                {
+                //if (customer.CreditPoints >= coupons.HowPoint)
+                //{
                     // 從資料庫中獲取該顧客的優惠卷資料
                     var result = _dbxContext.TCoupons.ToList();
                     return Ok(result);
-                }
+                //}
             }
             //直接顯示登入畫面
             return Unauthorized();
@@ -321,14 +321,27 @@ namespace QQEgg_Backend.Controllers
             string code = id.ToString();
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
+
             if (userIdClaim == null)
             {
                 return BadRequest(new { success = false, message = "沒讀到資料" });
             }
 
             string userId = userIdClaim.Value;
+            if (int.TryParse(userIdClaim.Value, out int UserId))
+            {
+                var userPoints = _dbxContext.TCustomers
+                                  .Where(a => a.CustomerId == UserId)
+                                  .Select(a => a.CreditPoints)
+                                  .FirstOrDefault();
+                var requiredPoints = _dbxContext.TCoupons.Where(c => c.Code == code).Select(a => a.HowPoint).SingleOrDefault();
+                if (userPoints <= requiredPoints)
+                {
+                    return BadRequest(new { success = false, message = "積分不足，無法領取優惠券" });
+                }
+            }
 
-
+            
             if (_userCouponClaims.ContainsKey(userId) && _userCouponClaims[userId].Contains(code))
             {
                 return BadRequest(new { success = false, message = "領過優惠卷" });
