@@ -192,11 +192,11 @@ namespace QQEgg_Backend.Controllers
                     StartDate = OrderData.StartDate,
                     EndDate = OrderData.EndDate,
                 };
-                int userId = (int)cOrder.CustomerId; // 使用訂單中的客戶ID
-                await SendEmail(userId);
+
                 _context.TCorders.Add(cOrder);
                 _context.SaveChanges();
-
+                int userId = (int)cOrder.CustomerId; // 使用訂單中的客戶ID
+                await SendEmail(userId);
                 var orderId = _context.TCorders.OrderBy(o => o.OrderId).LastOrDefault(o => o.TradeNo == OrderData.TradeNo);
                 if (orderId != null)
                 {
@@ -285,13 +285,13 @@ namespace QQEgg_Backend.Controllers
                         {
                             bitmap.UnlockBits(bitmapData);
                         }
-                        var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\256.png"); // 读取 logo 图片
-                        var g = Graphics.FromImage(bitmap);
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
+                        //var logo = new System.Drawing.Bitmap(@"C:\Users\Acer\OneDrive\OneNote 上傳\256.png"); // 读取 logo 图片
+                        //var g = Graphics.FromImage(bitmap);
+                        //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        //g.DrawImage(logo, new System.Drawing.Rectangle((bitmap.Width - logo.Width) / 2, (bitmap.Height - logo.Height) / 2, logo.Width, logo.Height));
 
-                        // save to folder
-                        string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
+                        //// save to folder
+                        //string fileGuid = Guid.NewGuid().ToString().Substring(0, 4);
 
                         // save to stream as PNG
                         bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
