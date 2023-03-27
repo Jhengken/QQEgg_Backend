@@ -41,7 +41,20 @@ namespace QQEgg_Backend.Controllers
 
             return products.ToList().Select(a => ToDTO(a));
         }
-      
+
+        // GET: api/product/2
+        [HttpGet("product/{id}")]
+        public ProductsDTO GetTProduct(int id)
+        {
+            var products = _context.TProducts.Where(p => p.SupplierId == id).Select(p => new ProductsDTO()
+            {
+                ProductId = p.ProductId,
+                Name = p.Name,
+            }).ToList();
+
+            return products[0];
+        }
+
         //資料傳遞靜態函式
         private static ProductsDTO ToDTO(TProducts product)
         {
@@ -97,6 +110,7 @@ namespace QQEgg_Backend.Controllers
                 
             };
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductsDTO>> GetTProducts(int id)
         {

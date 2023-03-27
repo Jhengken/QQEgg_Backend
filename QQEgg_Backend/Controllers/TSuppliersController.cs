@@ -53,6 +53,27 @@ namespace QQEgg_Backend.Controllers
             });
         }
 
+        // GET: api/TSuppliers/5
+        [HttpGet("{id}")]
+        public async Task<SuppliersDTO> GetTSuppliers(int id)
+        {
+            var tSuppliers = await _context.TSuppliers.FindAsync(id);
+
+            if (tSuppliers == null)
+            {
+                return null;
+            }
+
+            return new SuppliersDTO
+            {
+                //SupplierId = tSuppliers.SupplierId,
+                Name = tSuppliers.Name,
+                Email = tSuppliers.Email,
+                Phone = tSuppliers.Phone,
+                Address = tSuppliers.Address,
+                Password = tSuppliers.Password,
+            };
+        }
 
         /// <summary>
         /// 修改編輯業者資料
@@ -108,11 +129,8 @@ namespace QQEgg_Backend.Controllers
             }
         }
 
-       
-
         // POST: api/TSuppliers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
         [AllowAnonymous]
         [HttpPost("PostTSuppliers")]
         public async Task<IActionResult> PostTSuppliers([FromBody] SuppliersDTO tSuppliers)
