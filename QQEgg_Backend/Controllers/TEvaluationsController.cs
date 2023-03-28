@@ -32,22 +32,29 @@ namespace QQEgg_Backend.Controllers
         // GET: api/Evaluations/5
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<IEnumerable<EvaluationDTO>> GetTEvaluations(int id)
+        public async Task<List<EvaluationDTO>> GetTEvaluations(int id)
         {
             var room = await _dbXContext.TPsiteRoom.FindAsync(id);
 
             if (room != null)
             {
-                var result = _dbXContext.TEvaluations.Include(e => e.Customer).Include(e => e.Title).Select(e => new EvaluationDTO
-                {
-                    CustomerName = e.Customer.Name,
-                    Title = e.Title.TitleName,
-                    Date = e.Date,
-                    Description = e.Description,
-                    Star = e.Star,
-                });
+                var result = _dbXContext.TEvaluations
+                    .Where(e => e.RoomId == id)
+                    .Include(e => e.Customer)
+                    .Include(e => e.Title)
+                    .Select(e => new EvaluationDTO
+                    {
+                        CustomerName = e.Customer.Name,
+                        RoomID = e.RoomId,
+                        Title = e.Title.TitleName,
+                        Date = e.Date,
+                        Description = e.Description,
+                        Star = e.Star,
+                    });
+
                 return await result.ToListAsync();
             }
+           
             return null;
         }
         /// <summary>

@@ -63,7 +63,7 @@ namespace QQEgg_Backend.Controllers
             _dbxContext.TCustomers.Add(customer);
             _dbxContext.SaveChanges();
 
-            return Ok(new
+            return  Ok(new
             {
                 success = true,
                 message = "註冊成功"
