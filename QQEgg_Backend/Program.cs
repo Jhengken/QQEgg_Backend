@@ -45,7 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<QrcodeService>();
-
+builder.Services.AddScoped<ForgetPasswordSerivce>();
 
 var app = builder.Build();
 

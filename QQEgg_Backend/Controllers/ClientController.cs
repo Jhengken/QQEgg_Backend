@@ -18,6 +18,7 @@ using QQEgg_Backend.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Authorization;
 using static IdentityServer4.Models.IdentityResources;
+using QQEgg_Backend.Serivce;
 
 namespace QQEgg_Backend.Controllers
 {
@@ -28,11 +29,12 @@ namespace QQEgg_Backend.Controllers
     {
         private readonly dbXContext _dbxContext;
         private readonly IConfiguration _configuration;
-
-        public ClientController(dbXContext dbxContext, IConfiguration configuration)
+        private readonly ForgetPasswordSerivce _forgetPasswordSerivce;
+        public ClientController(dbXContext dbxContext, IConfiguration configuration, ForgetPasswordSerivce forgetPasswordSerivce)
         {
             _dbxContext = dbxContext;
             _configuration = configuration;
+            _forgetPasswordSerivce = forgetPasswordSerivce;
         }
         /// <summary>
         /// 顧客註冊資料先寫到DTO裡面，黑名單及積分自動產生
@@ -91,13 +93,12 @@ namespace QQEgg_Backend.Controllers
                 {
                     var claims = new List<Claim>
                             {
-                                 new Claim(JwtRegisteredClaimNames.Sub, user.CustomerId.ToString()), // 添加用户 ID 作为 subject
+                                 new Claim(JwtRegisteredClaimNames.Sub, user.CustomerId.ToString()), 
                                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                                  new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                                  new Claim("Name",user.Name),
                                  new Claim(JwtRegisteredClaimNames.Email, value.Email),
-                                 new Claim("Phone",user.Phone),
-
+                                 //new Claim("Phone",user.Phone),
                         };
 
                     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -128,6 +129,12 @@ namespace QQEgg_Backend.Controllers
         {
             // 回傳過期的 JWT token，讓前端清除 token
             return Ok(new { token = "" });
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            return await _forgetPasswordSerivce.ResetPassword(request.Email);
         }
 
         // GET: api/Customers/5
@@ -188,7 +195,7 @@ namespace QQEgg_Backend.Controllers
                 // 生成新的JWT令牌
                 var claims = new List<Claim>
                             {
-                                 new Claim(JwtRegisteredClaimNames.Sub, result.CustomerId.ToString()), // 添加用户 ID 作为 subject
+                                 new Claim(JwtRegisteredClaimNames.Sub, result.CustomerId.ToString()), 
                                  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                                  new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                                  new Claim("Name",result.Name),
