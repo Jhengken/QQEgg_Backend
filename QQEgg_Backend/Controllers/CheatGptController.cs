@@ -12,7 +12,7 @@ namespace QQEgg_Backend.Controllers
         [Route("getanswer")]
         public IActionResult Post([FromBody] ChatbotRequestDto request)
         {
-            string apiKey = "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";
+            string apiKey = "";
             string answer = string.Empty;
             var openai = new OpenAIAPI(apiKey);
             CompletionRequest completion = new CompletionRequest
